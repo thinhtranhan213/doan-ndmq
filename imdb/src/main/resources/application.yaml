@@ -6,19 +6,18 @@ spring:
     name: imdb
 
   datasource:
-    url: jdbc:mysql://localhost:3306/jbox_demo?useUnicode=true&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/imdb?useUnicode=true&characterEncoding=UTF-8
     username: root
     password: 21436587
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
 
   flyway:
     enabled: true
@@ -43,7 +42,7 @@ logging:
     org.springframework.security: info
 
 jwt:
-  secret: change-this-to-long-secret-key
+  secret: W+BZWL5dyk9IuuHE7UEv439DaujnXZ5UfUSOgxGtKEIO6xXo0aubhOnKsFmxZyktysCO9pAUCGNoE9zBbL6SNg==
   expiration: 86400000
 
 imdb:
