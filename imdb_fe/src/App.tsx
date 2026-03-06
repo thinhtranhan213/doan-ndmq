@@ -19,50 +19,36 @@ const AppRoutes: React.FC = () => {
   // Initialize auth state on app mount
   useEffect(() => {
     initializeAuth();
-  }, [initializeAuth]);
+  }, []);
 
   // Don't show Navbar on login/signup/forgot-password page
   const isAuthPage =
     location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/forgot-password';
 
-  // Redirect to login if not authenticated (except on auth pages)
-  if (!isAuthenticated && !isAuthPage) {
-    return <Navigate to="/login" replace />;
-  }
+  // TEMPORARILY DISABLED: Allow all routes without authentication
+  // // Redirect to login if not authenticated (except on auth pages)
+  // if (!isAuthenticated && !isAuthPage) {
+  //   return <Navigate to="/login" replace />;
+  // }
 
-  // Redirect to home if authenticated and trying to access auth pages
-  if (isAuthenticated && isAuthPage) {
-    return <Navigate to="/" replace />;
-  }
+  // // Redirect to home if authenticated and trying to access auth pages
+  // if (isAuthenticated && isAuthPage) {
+  //   return <Navigate to="/" replace />;
+  // }
 
   return (
     <>
       <ScrollToTop />
       {!isAuthPage && <Navbar />}
       <Routes>
-        {isAuthenticated ? (
-          <>
-            {/* Protected Routes - only accessible when authenticated */}
-            <Layout>
-              <Route path="/" element={<Home />} />
-              <Route path="/genre/:genreId" element={<GenrePage />} />
-              <Route path="/movie/:id" element={<MovieDetail />} />
-              <Route path="/search" element={<Search />} />
-            </Layout>
-            {/* Redirect back to home if trying to access auth pages while authenticated */}
-            <Route path="/login" element={<Navigate to="/" replace />} />
-            <Route path="/signup" element={<Navigate to="/" replace />} />
-          </>
-        ) : (
-          <>
-            {/* Public Routes - only accessible when not authenticated */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            {/* Redirect all other routes to login if not authenticated */}
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          </>
-        )}
+        {/* Temporarily allow all routes */}
+        <Route path="/" element={<Layout><Home /></Layout>} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/genre/:genreId" element={<Layout><GenrePage /></Layout>} />
+        <Route path="/movie/:id" element={<Layout><MovieDetail /></Layout>} />
+        <Route path="/search" element={<Layout><Search /></Layout>} />
       </Routes>
     </>
   );
