@@ -29,6 +29,17 @@ spring:
     redis:
       host: localhost
       port: 6379
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: thinhtranhan21@gmail.com
+    password: lhnm icmh osfs lmf
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+              enable: true
 
 management:
   endpoints:

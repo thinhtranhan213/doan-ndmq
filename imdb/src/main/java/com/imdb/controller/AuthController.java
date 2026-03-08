@@ -2,9 +2,12 @@ package com.imdb.controller;
 
 import com.imdb.config.jwt.JwtUtils;
 import com.imdb.config.user.CustomUserDetails;
+import com.imdb.dto.request.ForgotPasswordRequest;
 import com.imdb.dto.request.LoginRequest;
+import com.imdb.dto.request.RegisterCommonUserRequest;
 import com.imdb.dto.response.LoginResponse;
 import com.imdb.mapper.AuthMapper;
+import com.imdb.service.impl.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,6 +26,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
     private final AuthMapper authMapper;
+    private final AuthService authService;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
@@ -46,5 +50,21 @@ public class AuthController {
                         response.username(),
                         response.roles())
         );
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest request){
+
+        authService.forgotPassword(request.email());
+
+        return ResponseEntity.ok("New password has been sent to your email");
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody RegisterCommonUserRequest request){
+
+        authService.register(request);
+
+        return ResponseEntity.ok("User registered successfully");
     }
 }
