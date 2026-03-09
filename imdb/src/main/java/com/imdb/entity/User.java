@@ -16,9 +16,13 @@ public class User extends AuditableEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+//
+//    @Column(unique = true)
+//    private String username;
 
-    @Column(unique = true)
-    private String username;
+    private String firstName;
+
+    private String lastName;
 
     @Column(unique = true)
     private String email;
@@ -27,6 +31,16 @@ public class User extends AuditableEntity {
 
     private Boolean enabled = true;
 
+    private Provider provider = Provider.LOCAL; // LOCAL / GOOGLE
+
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> roles = new HashSet<>();
+
+    public String getFullName() {
+        return this.firstName + " " + this.lastName;
+    }
+
+    public enum Provider{
+        GOOGLE, LOCAL
+    }
 }

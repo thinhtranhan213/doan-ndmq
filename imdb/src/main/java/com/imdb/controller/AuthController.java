@@ -33,7 +33,7 @@ public class AuthController {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.username(),
+                        request.email(),
                         request.password()
                 )
         );
@@ -45,11 +45,12 @@ public class AuthController {
 
         LoginResponse response = authMapper.toLoginResponse(user);
 
-        return ResponseEntity.ok(
-                new LoginResponse(token,
-                        response.username(),
-                        response.roles())
-        );
+        return ResponseEntity.ok(new LoginResponse(
+                token,
+                response.userName(),
+                response.email(),
+                response.roles()
+        ));
     }
 
     @PostMapping("/forgot-password")

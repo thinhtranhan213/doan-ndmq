@@ -20,9 +20,12 @@ public class UserService implements IUserService {
     @Override
     public void changePassword(ChangePasswordRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
+        String email = null;
+        if (authentication != null) {
+            email = authentication.getName();
+        }
 
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // kiểm tra password cũ

@@ -9,6 +9,8 @@ import org.mapstruct.Mapping;
 public interface AuthMapper {
 
     @Mapping(target = "accessToken", ignore = true)
+    @Mapping(target = "email", expression = "java(user.getUsername())")
+    @Mapping(target = "userName", expression = "java(user.getFullName())")
     @Mapping(target = "roles", expression =
             "java(user.getAuthorities().stream()" +
                     ".map(a -> a.getAuthority()).toList())")

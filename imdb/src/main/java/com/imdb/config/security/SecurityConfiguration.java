@@ -4,6 +4,7 @@ package com.imdb.config.security;
 import com.imdb.config.jwt.JwtAuthEntryPoint;
 import com.imdb.config.jwt.JwtAuthFilter;
 import com.imdb.config.jwt.JwtUtils;
+import com.imdb.config.oauth2.OAuth2LoginSuccessHandler;
 import com.imdb.config.user.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +28,7 @@ public class SecurityConfiguration {
 
     private final CustomUserDetailsService detailsService;
     private final JwtAuthEntryPoint jwtEntryPoint;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final JwtUtils jwtUtils;
 
     @Bean
@@ -75,6 +77,9 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
+                )
+                .oauth2Login(oauth -> oauth
+                        .successHandler(oAuth2LoginSuccessHandler)
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 

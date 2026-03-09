@@ -37,17 +37,15 @@ public class AuthService implements IAuthService {
 
     @Override
     public void register(RegisterCommonUserRequest request) {
-        if(userRepository.existsByUsername(request.userName())){
-            throw new RuntimeException("Username already exists");
-        }
 
         if(userRepository.existsByEmail(request.email())){
             throw new RuntimeException("Email already exists");
         }
 
         User user = new User();
-        user.setUsername(request.userName());
         user.setEmail(request.email());
+        user.setFirstName(request.firstName());
+        user.setLastName(request.lastName());
         user.setPassword(passwordEncoder.encode(request.password()));
 
         Role roleUser = roleRepository.findByName("ROLE_USER")

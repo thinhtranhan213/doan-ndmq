@@ -33,13 +33,23 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: thinhtranhan21@gmail.com
-    password: lhnm icmh osfs lmf
+    password: alna lybp vjkr ccor
     properties:
       mail:
         smtp:
           auth: true
           starttls:
               enable: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 735045361085-549k3mq46u96v6pfrth1fe6q28fe3jb3.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+              - email
+              - profile
 
 management:
   endpoints:
@@ -60,3 +70,5 @@ imdb:
   pagination:
     default-size: 20
     max-size: 100
+
+

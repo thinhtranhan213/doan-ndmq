@@ -1,7 +1,8 @@
 package com.imdb.dto.request;
 
 public record RegisterCommonUserRequest(
-        String userName,
+        String firstName,
+        String lastName,
         String email,
         String password
 ) {

@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -28,25 +29,37 @@ public class JwtUtils {
         this.signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
         this.expirationMs = expirationMs;
     }
-
     public String generateJwtToken(Authentication authentication) {
-        CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
 
-        List<String> roles = user.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .toList();
+        String username;
+        List<String> roles;
+
+        Object principal = authentication.getPrincipal();
+
+        if (principal instanceof CustomUserDetails user) {
+
+            username = user.getUsername();
+            roles = user.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .toList();
+
+        } else if (principal instanceof OAuth2User oAuth2User) {
+            username = oAuth2User.getAttribute("email");
+            roles = List.of("ROLE_USER"); // role mặc định
+        } else {
+            throw new RuntimeException("Unsupported authentication type");
+        }
 
         Instant now = Instant.now();
 
         return Jwts.builder()
-                .setSubject(user.getUsername())
+                .setSubject(username)
                 .claim("roles", roles)
                 .setIssuedAt(Date.from(now))
                 .setExpiration(Date.from(now.plusMillis(expirationMs)))
                 .signWith(signingKey, SignatureAlgorithm.HS512)
                 .compact();
     }
-
     public Claims extractClaims(String token) {
         return Jwts.parser()
                 .verifyWith((SecretKey) signingKey)
