@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { loginUser } from '../../api/auth';
+import { loginUser, loginWithGoogle } from '../../api/auth';
 import { useAuthStore } from '../../store/authStore';
 import backgroundImage from '../../assets/background_login.webp';
 
@@ -85,8 +85,11 @@ const Login: React.FC = () => {
 
     // Handle social login (placeholder)
     const handleSocialLogin = (provider: string) => {
-        console.log(`Login with ${provider}`);
-        // TODO: Implement social login
+        if (provider === 'google') {
+            loginWithGoogle();
+        } else {
+            console.log(`Login with ${provider} is not yet implemented`);
+        }
     };
 
     return (

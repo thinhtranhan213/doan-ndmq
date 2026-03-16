@@ -50,7 +50,7 @@ export const useGenreMovies = () => {
                         loading: false,
                         error: null,
                     }))
-                    .catch(err => ({
+                    .catch(_err => ({
                         ...genre,
                         movies: [],
                         loading: false,

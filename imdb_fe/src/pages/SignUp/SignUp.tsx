@@ -12,6 +12,8 @@ const SignUp: React.FC = () => {
         firstName?: string;
         lastName?: string;
         email?: string;
+        password?: string;
+        passwordConfirm?: string;
     }>({});
 
     // Form states
@@ -19,7 +21,11 @@ const SignUp: React.FC = () => {
         firstName: '',
         lastName: '',
         email: '',
+        password: '',
+        passwordConfirm: '',
     });
+    const [showPassword, setShowPassword] = useState(false);
+    const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
     // Handle input change
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -55,6 +61,24 @@ const SignUp: React.FC = () => {
             newErrors.email = 'Email is invalid';
         }
 
+        if (!formData.password) {
+            newErrors.password = 'Password is required';
+        } else if (formData.password.length < 8) {
+            newErrors.password = 'Password must be at least 8 characters';
+        } else if (!/(?=.*[a-z])/.test(formData.password)) {
+            newErrors.password = 'Password must contain at least one lowercase letter';
+        } else if (!/(?=.*[A-Z])/.test(formData.password)) {
+            newErrors.password = 'Password must contain at least one uppercase letter';
+        } else if (!/(?=.*\d)/.test(formData.password)) {
+            newErrors.password = 'Password must contain at least one number';
+        }
+
+        if (!formData.passwordConfirm) {
+            newErrors.passwordConfirm = 'Please confirm password';
+        } else if (formData.password !== formData.passwordConfirm) {
+            newErrors.passwordConfirm = 'Passwords do not match';
+        }
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -76,6 +100,7 @@ const SignUp: React.FC = () => {
                 email: formData.email,
                 firstName: formData.firstName,
                 lastName: formData.lastName,
+                password: formData.password,
             });
 
             login(response);
@@ -212,6 +237,54 @@ const SignUp: React.FC = () => {
                                 }`}
                         />
                         {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                    </div>
+
+                    {/* Password Field */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <div className="relative">
+                            <input
+                                type={showPassword ? 'text' : 'password'}
+                                name="password"
+                                value={formData.password}
+                                onChange={handleInputChange}
+                                placeholder="At least 8 characters with uppercase, lowercase, and number"
+                                className={`w-full px-4 py-3 pr-10 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-gray-900 placeholder:text-gray-400 text-sm ${errors.password ? 'border-red-500' : 'border-gray-300'
+                                    }`}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                            >
+                                {showPassword ? '👁️' : '👁️‍🗨️'}
+                            </button>
+                        </div>
+                        {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+                    </div>
+
+                    {/* Confirm Password Field */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                        <div className="relative">
+                            <input
+                                type={showPasswordConfirm ? 'text' : 'password'}
+                                name="passwordConfirm"
+                                value={formData.passwordConfirm}
+                                onChange={handleInputChange}
+                                placeholder="Re-enter your password"
+                                className={`w-full px-4 py-3 pr-10 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-gray-900 placeholder:text-gray-400 text-sm ${errors.passwordConfirm ? 'border-red-500' : 'border-gray-300'
+                                    }`}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
+                                className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+                            >
+                                {showPasswordConfirm ? '👁️' : '👁️‍🗨️'}
+                            </button>
+                        </div>
+                        {errors.passwordConfirm && <p className="text-red-500 text-xs mt-1">{errors.passwordConfirm}</p>}
                     </div>
 
                     {/* Submit Button */}

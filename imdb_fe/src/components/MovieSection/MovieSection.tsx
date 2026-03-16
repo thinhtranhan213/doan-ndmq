@@ -25,7 +25,7 @@ const MovieSection: React.FC<MovieSectionProps> = ({ title, description, movies,
         );
     }
 
-    if (movies.length === 0) {
+    if (!movies || movies.length === 0) {
         return (
             <div className="text-center text-gray-400 py-12">
                 <p className="text-lg">No movies found</p>

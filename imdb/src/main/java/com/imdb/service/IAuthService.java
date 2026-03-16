@@ -1,10 +1,16 @@
 package com.imdb.service;
 
 import com.imdb.dto.request.RegisterCommonUserRequest;
+import com.imdb.dto.response.LoginResponse;
+import com.imdb.dto.response.OtpResponse;
 
 public interface IAuthService {
 
-    void forgotPassword(String email);
+    OtpResponse sendOtp(String email);
 
-    void register(RegisterCommonUserRequest request);
+    void verifyOtp(String email, String otp);
+
+    void resetPasswordWithOtp(String email, String otp, String newPassword);
+
+    LoginResponse register(RegisterCommonUserRequest request);
 }

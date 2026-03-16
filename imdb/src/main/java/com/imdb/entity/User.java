@@ -16,9 +16,9 @@ public class User extends AuditableEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-//
-//    @Column(unique = true)
-//    private String username;
+    //
+    // @Column(unique = true)
+    // private String username;
 
     private String firstName;
 
@@ -33,6 +33,17 @@ public class User extends AuditableEntity {
 
     private Provider provider = Provider.LOCAL; // LOCAL / GOOGLE
 
+    private String otp; // One-Time Password for forgot password
+
+    private Long otpExpirationTime; // OTP expiration time in milliseconds
+
+    private Long lastOtpSentTime; // Timestamp of last OTP sent (for rate limiting)
+
+    private Integer otpAttempts = 0; // Number of OTP send attempts (resets every hour)
+
+    private Long otpAttemptStartTime; // Timestamp when first OTP attempt started (for resetting attempts after 1
+                                      // hour)
+
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> roles = new HashSet<>();
 
@@ -40,7 +51,7 @@ public class User extends AuditableEntity {
         return this.firstName + " " + this.lastName;
     }
 
-    public enum Provider{
+    public enum Provider {
         GOOGLE, LOCAL
     }
 }

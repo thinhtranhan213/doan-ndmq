@@ -86,9 +86,9 @@ const VideoHero: React.FC<VideoHeroProps> = ({ movieId }) => {
         setIsPlaying(true);
     };
 
-    const togglePlayPause = () => {
-        setIsPlaying(!isPlaying);
-    };
+    // const _togglePlayPause = () => {
+    //     setIsPlaying(!isPlaying);
+    // };
 
     // Xử lý scroll trong thumbnails strip
     const handleThumbnailsWheel = (e: React.WheelEvent<HTMLDivElement>) => {
@@ -107,7 +107,7 @@ const VideoHero: React.FC<VideoHeroProps> = ({ movieId }) => {
     };
 
     // Format duration từ ISO 8601 hoặc giả lập duration (API không cung cấp)
-    const formatDuration = (video: Video): string => {
+    const formatDuration = (_video: Video): string => {
         // YouTube API không trả về duration trong TMDb, nên ta sẽ giả lập
         // Hoặc có thể để trống nếu không có data
         const durations = ['1:20', '2:15', '0:45', '1:50', '2:30', '1:05', '3:10'];

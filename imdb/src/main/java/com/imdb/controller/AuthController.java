@@ -5,7 +5,11 @@ import com.imdb.config.user.CustomUserDetails;
 import com.imdb.dto.request.ForgotPasswordRequest;
 import com.imdb.dto.request.LoginRequest;
 import com.imdb.dto.request.RegisterCommonUserRequest;
+import com.imdb.dto.request.ResetPasswordRequest;
+import com.imdb.dto.request.VerifyOtpRequest;
 import com.imdb.dto.response.LoginResponse;
+import com.imdb.dto.response.OtpResponse;
+import com.imdb.dto.response.PasswordResponse;
 import com.imdb.mapper.AuthMapper;
 import com.imdb.service.impl.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -34,38 +38,44 @@ public class AuthController {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.email(),
-                        request.password()
-                )
-        );
+                        request.password()));
 
-        CustomUserDetails user =
-                (CustomUserDetails) authentication.getPrincipal();
+        CustomUserDetails user = (CustomUserDetails) authentication.getPrincipal();
 
         String token = jwtUtils.generateJwtToken(authentication);
 
-        LoginResponse response = authMapper.toLoginResponse(user);
-
         return ResponseEntity.ok(new LoginResponse(
                 token,
-                response.userName(),
-                response.email(),
-                response.roles()
-        ));
+                user.getUsername(),
+                user.getEmail(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getAuthorities().stream()
+                        .map(auth -> auth.getAuthority())
+                        .toList()));
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest request){
+    public ResponseEntity<OtpResponse> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        OtpResponse response = authService.sendOtp(request.email());
+        return ResponseEntity.ok(response);
+    }
 
-        authService.forgotPassword(request.email());
+    @PostMapping("/verify-reset-code")
+    public ResponseEntity<PasswordResponse> verifyResetCode(@RequestBody VerifyOtpRequest request) {
+        authService.verifyOtp(request.email(), request.code());
+        return ResponseEntity.ok(new PasswordResponse("OTP verified successfully", true));
+    }
 
-        return ResponseEntity.ok("New password has been sent to your email");
+    @PostMapping("/reset-password")
+    public ResponseEntity<PasswordResponse> resetPassword(@RequestBody ResetPasswordRequest request) {
+        authService.resetPasswordWithOtp(request.email(), request.code(), request.newPassword());
+        return ResponseEntity.ok(new PasswordResponse("Password has been reset successfully", true));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterCommonUserRequest request){
-
-        authService.register(request);
-
-        return ResponseEntity.ok("User registered successfully");
+    public ResponseEntity<LoginResponse> register(@RequestBody RegisterCommonUserRequest request) {
+        LoginResponse response = authService.register(request);
+        return ResponseEntity.ok(response);
     }
 }

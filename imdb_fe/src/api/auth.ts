@@ -29,8 +29,11 @@ const generateFakeToken = (userId: string): string => {
     return `fake_token_${userId}_${Date.now()}`;
 };
 
-const ENABLE_MOCK_API = true; // Set to false khi dùng backend thực sự
+const ENABLE_MOCK_API = false; // Set to false khi dùng backend thực sự
 // =========================================
+
+// OAuth2 Configuration
+export const OAUTH2_GOOGLE_URL = 'http://localhost:8080/oauth2/authorization/google';
 
 const authApi = axios.create({
     baseURL: API_BASE_URL,
@@ -61,12 +64,12 @@ if (ENABLE_MOCK_API) {
                         response: {
                             status: 200,
                             data: {
-                                token: generateFakeToken(user.id),
-                                user: {
-                                    id: user.id,
-                                    email: user.email,
-                                    name: user.name
-                                }
+                                accessToken: generateFakeToken(user.id),
+                                userName: user.email,
+                                email: user.email,
+                                firstName: 'Demo',
+                                lastName: 'User',
+                                roles: ['ROLE_USER']
                             }
                         },
                         isMockSuccess: true
@@ -84,14 +87,8 @@ if (ENABLE_MOCK_API) {
             }
 
             // Mock signup
-            if (config.url === '/auth/signup' && config.method === 'post') {
+            if (config.url === '/auth/register' && config.method === 'post') {
                 const { email, firstName, lastName } = config.data;
-                const newUser = {
-                    id: String(FAKE_USERS.length + 1),
-                    email,
-                    password: 'password123',
-                    name: `${firstName} ${lastName}`
-                };
 
                 await new Promise(resolve => setTimeout(resolve, 500));
 
@@ -100,12 +97,12 @@ if (ENABLE_MOCK_API) {
                     response: {
                         status: 200,
                         data: {
-                            token: generateFakeToken(newUser.id),
-                            user: {
-                                id: newUser.id,
-                                email: newUser.email,
-                                name: newUser.name
-                            }
+                            accessToken: generateFakeToken(String(FAKE_USERS.length + 1)),
+                            userName: email,
+                            email: email,
+                            firstName: firstName,
+                            lastName: lastName,
+                            roles: ['ROLE_USER']
                         }
                     },
                     isMockSuccess: true
@@ -149,7 +146,7 @@ authApi.interceptors.response.use(
 authApi.interceptors.request.use(
     (config) => {
         // Skip if already handled by mock
-        if (!ENABLE_MOCK_API || (config.url !== '/auth/login' && config.url !== '/auth/signup')) {
+        if (!ENABLE_MOCK_API || (config.url !== '/auth/login' && config.url !== '/auth/register')) {
             const token = localStorage.getItem('authToken');
             if (token) {
                 config.headers.Authorization = `Bearer ${token}`;
@@ -165,12 +162,31 @@ export interface LoginRequest {
     password: string;
 }
 
+export interface User {
+    email: string;
+    userName: string;
+    firstName: string;
+    lastName: string;
+}
+
 export interface LoginResponse {
-    token: string;
+    accessToken: string;
+    userName: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    roles: string[];
+}
+
+export interface ProfileResponse {
     user: {
-        id: string;
         email: string;
-        name: string;
+        firstName: string;
+        lastName: string;
+        createdAt: string;
+        roles: string[];
+        hasPassword?: boolean;
+        provider?: string;
     };
 }
 
@@ -178,26 +194,19 @@ export interface SignUpRequest {
     email: string;
     firstName: string;
     lastName: string;
+    password: string;
 }
 
 // Login API
 export const loginUser = async (credentials: LoginRequest): Promise<LoginResponse> => {
-    try {
-        const response = await authApi.post<LoginResponse>('/auth/login', credentials);
-        return response.data;
-    } catch (error) {
-        throw error;
-    }
+    const response = await authApi.post<LoginResponse>('/auth/login', credentials);
+    return response.data;
 };
 
 // Sign up API
 export const signUpUser = async (data: SignUpRequest): Promise<LoginResponse> => {
-    try {
-        const response = await authApi.post<LoginResponse>('/auth/signup', data);
-        return response.data;
-    } catch (error) {
-        throw error;
-    }
+    const response = await authApi.post<LoginResponse>('/auth/register', data);
+    return response.data;
 };
 
 // Logout
@@ -207,12 +216,101 @@ export const logoutUser = (): void => {
 };
 
 // Lấy user hiện tại
-export const getCurrentUser = (): any => {
+export const getCurrentUser = (): User | null => {
     const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
+    if (!user || user === 'undefined') {
+        return null;
+    }
+    try {
+        return JSON.parse(user);
+    } catch {
+        return null;
+    }
 };
 
 // Check token hợp lệ
 export const isAuthenticated = (): boolean => {
     return !!localStorage.getItem('authToken');
+};
+
+// Handle OAuth2 login success callback
+export const handleOAuth2Callback = (token: string, userData?: { userName?: string; email?: string; firstName?: string; lastName?: string; roles?: string[] }): LoginResponse | null => {
+    localStorage.setItem('authToken', token);
+
+    // If user data is provided, save it
+    if (userData?.email) {
+        const user: User = {
+            email: userData.email,
+            userName: userData.userName || userData.email,
+            firstName: userData.firstName || '',
+            lastName: userData.lastName || '',
+        };
+        localStorage.setItem('user', JSON.stringify(user));
+        return {
+            accessToken: token,
+            userName: userData.userName || userData.email,
+            email: userData.email,
+            firstName: userData.firstName || '',
+            lastName: userData.lastName || '',
+            roles: userData.roles || []
+        };
+    }
+
+    // Try to get user from localStorage
+    const user = getCurrentUser();
+    if (user) {
+        return {
+            accessToken: token,
+            userName: user.userName,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            roles: []
+        };
+    }
+
+    return null;
+};
+
+// Initiate Google OAuth2 login
+export const loginWithGoogle = (): void => {
+    window.location.href = OAUTH2_GOOGLE_URL;
+};
+
+// Get current user profile
+export const getCurrentUserProfile = async (): Promise<ProfileResponse> => {
+    const response = await authApi.get<ProfileResponse>('/user/me');
+    return response.data;
+};
+
+// Change password
+export interface ChangePasswordRequest {
+    oldPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+}
+
+export const changePassword = async (data: ChangePasswordRequest): Promise<{ message: string }> => {
+    const response = await authApi.put('/user/change-password', {
+        oldPassword: data.oldPassword,
+        newPassword: data.newPassword,
+        confirmPassword: data.confirmPassword
+    });
+    return response.data;
+};
+
+// Update profile
+export interface UpdateProfileRequest {
+    firstName: string;
+    lastName: string;
+    email: string;
+}
+
+export const updateProfile = async (data: UpdateProfileRequest): Promise<{ message: string }> => {
+    const response = await authApi.put('/user/update-profile', {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email
+    });
+    return response.data;
 };

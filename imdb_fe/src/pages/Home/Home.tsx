@@ -24,7 +24,7 @@ const Home: React.FC = () => {
     }
 
     // Lấy movieId từ trending movies để hiển thị video hero
-    const heroMovieId = trending.length > 0 ? trending[0].id : null;
+    const heroMovieId = (trending && trending.length > 0) ? trending[0].id : null;
 
     return (
         <div className="min-h-screen bg-imdb-dark">

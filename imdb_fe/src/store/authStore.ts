@@ -1,11 +1,5 @@
 import { create } from 'zustand';
-import { LoginResponse, isAuthenticated, getCurrentUser } from '../api/auth';
-
-export interface User {
-    id: string;
-    email: string;
-    name: string;
-}
+import { LoginResponse, getCurrentUser, User } from '../api/auth';
 
 interface AuthState {
     user: User | null;
@@ -36,13 +30,14 @@ export const useAuthStore = create<AuthState>((set) => ({
     setLoading: (loading) => set({ isLoading: loading }),
     setError: (error) => set({ error }),
 
-    login: (response) => {
-        const { token, user } = response;
-        localStorage.setItem('authToken', token);
+    login: (response: LoginResponse) => {
+        const { accessToken, userName, email, firstName, lastName } = response;
+        const user: User = { email, userName, firstName, lastName };
+        localStorage.setItem('authToken', accessToken);
         localStorage.setItem('user', JSON.stringify(user));
         set({
             user,
-            token,
+            token: accessToken,
             isAuthenticated: true,
             error: null,
         });

@@ -29,10 +29,16 @@ export interface PasswordResponse {
     success: boolean;
 }
 
+export interface OtpResponse {
+    success: boolean;
+    message: string;
+    remainingWaitTimeSeconds?: number;
+}
+
 // Request password reset
-export const requestPasswordReset = async (data: ForgotPasswordRequest): Promise<PasswordResponse> => {
+export const requestPasswordReset = async (data: ForgotPasswordRequest): Promise<OtpResponse> => {
     try {
-        const response = await passwordApi.post<PasswordResponse>('/auth/forgot-password', data);
+        const response = await passwordApi.post<OtpResponse>('/auth/forgot-password', data);
         return response.data;
     } catch (error) {
         throw error;

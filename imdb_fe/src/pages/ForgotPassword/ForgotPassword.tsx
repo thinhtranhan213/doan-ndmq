@@ -16,7 +16,19 @@ const ForgotPassword: React.FC = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
-    const [successMessage, setSuccessMessage] = useState('');
+    const [_successMessage, setSuccessMessage] = useState('');
+    const [remainingWaitTime, setRemainingWaitTime] = useState<number>(0);
+
+    // Countdown timer effect
+    React.useEffect(() => {
+        if (remainingWaitTime <= 0) return;
+
+        const timer = setTimeout(() => {
+            setRemainingWaitTime(prev => Math.max(0, prev - 1));
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, [remainingWaitTime]);
 
     // Step 1: Email validation
     const validateEmail = (): boolean => {
@@ -37,9 +49,26 @@ const ForgotPassword: React.FC = () => {
 
         setIsLoading(true);
         try {
-            await requestPasswordReset({ email });
-            setStep('verify');
-            setErrors({});
+            const response = await requestPasswordReset({ email });
+            if (response.success) {
+                setStep('verify');
+                setErrors({});
+                // Set countdown timer based on remainingWaitTimeSeconds
+                if (response.remainingWaitTimeSeconds && response.remainingWaitTimeSeconds > 0) {
+                    setRemainingWaitTime(response.remainingWaitTimeSeconds);
+                }
+            } else {
+                // Handle rate limiting error
+                const errorMsg = response.message || 'Failed to request password reset';
+                const remainingTime = response.remainingWaitTimeSeconds || 0;
+                const errorDisplay = remainingTime > 0
+                    ? `${errorMsg}`
+                    : errorMsg;
+                setErrors({ email: errorDisplay });
+                if (remainingTime > 0) {
+                    setRemainingWaitTime(remainingTime);
+                }
+            }
         } catch (err: any) {
             const errorMsg = err.response?.data?.message || 'Failed to request password reset';
             setErrors({ email: errorMsg });
@@ -97,8 +126,14 @@ const ForgotPassword: React.FC = () => {
         const newErrors: { [key: string]: string } = {};
         if (!newPassword) {
             newErrors.password = 'Password is required';
-        } else if (newPassword.length < 6) {
-            newErrors.password = 'Password must be at least 6 characters';
+        } else if (newPassword.length < 8) {
+            newErrors.password = 'Password must be at least 8 characters';
+        } else if (!/(?=.*[a-z])/.test(newPassword)) {
+            newErrors.password = 'Password must contain at least one lowercase letter';
+        } else if (!/(?=.*[A-Z])/.test(newPassword)) {
+            newErrors.password = 'Password must contain at least one uppercase letter';
+        } else if (!/(?=.*\d)/.test(newPassword)) {
+            newErrors.password = 'Password must contain at least one number';
         }
         if (!confirmPassword) {
             newErrors.confirmPassword = 'Please confirm your password';
@@ -192,13 +227,18 @@ const ForgotPassword: React.FC = () => {
 
                             <button
                                 type="submit"
-                                disabled={isLoading}
-                                className={`w-full py-3 rounded-lg font-semibold transition ${isLoading
-                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                    : 'bg-blue-500 text-white hover:bg-blue-600'
+                                disabled={isLoading || remainingWaitTime > 0}
+                                className={`w-full py-3 rounded-lg font-semibold transition ${isLoading || remainingWaitTime > 0
+                                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                        : 'bg-blue-500 text-white hover:bg-blue-600'
                                     }`}
                             >
-                                {isLoading ? 'Sending...' : 'Reset Password'}
+                                {isLoading
+                                    ? 'Sending...'
+                                    : remainingWaitTime > 0
+                                        ? `Wait ${remainingWaitTime}s before resending`
+                                        : 'Reset Password'
+                                }
                             </button>
                         </form>
                     </>
@@ -224,7 +264,7 @@ const ForgotPassword: React.FC = () => {
                                             value={digit}
                                             onChange={(e) => handleCodeChange(index, e.target.value)}
                                             onKeyDown={(e) => handleCodeKeyDown(index, e)}
-                                            className={`w-12 h-12 text-center border-2 rounded-lg font-bold text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${errors.code ? 'border-red-500' : 'border-gray-300'
+                                            className={`w-12 h-12 text-center border-2 rounded-lg font-bold text-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 transition ${errors.code ? 'border-red-500' : 'border-gray-300'
                                                 }`}
                                         />
                                     ))}
@@ -289,6 +329,11 @@ const ForgotPassword: React.FC = () => {
                                         }`}
                                 />
                                 {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+                                {!errors.password && (
+                                    <p className="text-gray-500 text-xs mt-2">
+                                        Password must contain: 8+ characters, uppercase letter, lowercase letter, number
+                                    </p>
+                                )}
                             </div>
 
                             <div>
