@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { getTrendingMovies, getTopRatedMovies, getPopularMovies } from '../api/endpoints';
+import { getTrendingMoviesFromBackend, getTopRatedMoviesFromBackend, getPopularMoviesFromBackend } from '../api/endpoints';
 import { Movie } from '../types/movie.types';
 
 interface MovieSections {
@@ -28,11 +28,11 @@ export const useMultipleMovieSections = () => {
         try {
             setSections((prev) => ({ ...prev, loading: true, error: null }));
 
-            // Fetch tất cả sections song song
+            // Fetch tất cả sections song song từ backend
             const [trendingData, topRatedData, popularData] = await Promise.all([
-                getTrendingMovies('week'),
-                getTopRatedMovies(1),
-                getPopularMovies(1),
+                getTrendingMoviesFromBackend('week'),
+                getTopRatedMoviesFromBackend(1),
+                getPopularMoviesFromBackend(1),
             ]);
 
             setSections({

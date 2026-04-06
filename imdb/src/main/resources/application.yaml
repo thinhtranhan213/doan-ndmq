@@ -74,3 +74,7 @@ imdb:
   pagination:
     default-size: 20
     max-size: 100
+
+tmdb:
+  api-key: ${TMDB_API_KEY:TungDV21}
+  base-url: https://api.themoviedb.org/3

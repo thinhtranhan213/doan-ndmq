@@ -1,6 +1,15 @@
 
+import axios from "axios";
 import tmdbApi from "./tmdb";
 import { Movie, MovieDetail, ApiResponse, Credits, ImageConfig, Genre, Review, VideoResponse } from "../types/movie.types";
+
+// Create axios instance for backend API
+const backendApi = axios.create({
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api',
+    headers: {
+        'Content-Type': 'application/json',
+    }
+});
 
 // Get image configuration
 export const getConfiguration = async (): Promise<ImageConfig> => {
@@ -105,6 +114,34 @@ export const getTrendingMovies = async (timeWindow: 'day' | 'week' = 'week'): Pr
 export const getTopRatedMovies = async (page: number = 1): Promise<ApiResponse<Movie>> => {
     const response = await tmdbApi.get('/movie/top_rated', {
         params: { page, language: 'en-US' },
+    });
+    return response.data;
+};
+
+// ======================================
+// Backend API Endpoints (Home Page)
+// ======================================
+
+// Get trending movies from backend
+export const getTrendingMoviesFromBackend = async (timeWindow: 'day' | 'week' = 'week'): Promise<ApiResponse<Movie>> => {
+    const response = await backendApi.get('/public/movies/trending', {
+        params: { timeWindow },
+    });
+    return response.data;
+};
+
+// Get top rated movies from backend
+export const getTopRatedMoviesFromBackend = async (page: number = 1): Promise<ApiResponse<Movie>> => {
+    const response = await backendApi.get('/public/movies/top-rated', {
+        params: { page },
+    });
+    return response.data;
+};
+
+// Get popular movies from backend
+export const getPopularMoviesFromBackend = async (page: number = 1): Promise<ApiResponse<Movie>> => {
+    const response = await backendApi.get('/public/movies/popular', {
+        params: { page },
     });
     return response.data;
 };

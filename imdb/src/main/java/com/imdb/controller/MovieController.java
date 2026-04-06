@@ -1,0 +1,55 @@
+package com.imdb.controller;
+
+import com.imdb.dto.response.MovieApiResponse;
+import com.imdb.service.IMovieService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/public/movies")
+@RequiredArgsConstructor
+@CrossOrigin(origins = "${app.frontend.url}")
+public class MovieController {
+
+    private final IMovieService movieService;
+
+    /**
+     * Get trending movies
+     * 
+     * @param timeWindow 'day' or 'week' (default: 'week')
+     * @return MovieApiResponse with list of trending movies
+     */
+    @GetMapping("/trending")
+    public ResponseEntity<MovieApiResponse> getTrendingMovies(
+            @RequestParam(defaultValue = "week") String timeWindow) {
+        MovieApiResponse response = movieService.getTrendingMovies(timeWindow);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Get top rated movies
+     * 
+     * @param page page number (default: 1)
+     * @return MovieApiResponse with list of top rated movies
+     */
+    @GetMapping("/top-rated")
+    public ResponseEntity<MovieApiResponse> getTopRatedMovies(
+            @RequestParam(defaultValue = "1") Integer page) {
+        MovieApiResponse response = movieService.getTopRatedMovies(page);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Get popular movies
+     * 
+     * @param page page number (default: 1)
+     * @return MovieApiResponse with list of popular movies
+     */
+    @GetMapping("/popular")
+    public ResponseEntity<MovieApiResponse> getPopularMovies(
+            @RequestParam(defaultValue = "1") Integer page) {
+        MovieApiResponse response = movieService.getPopularMovies(page);
+        return ResponseEntity.ok(response);
+    }
+}
