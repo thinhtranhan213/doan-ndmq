@@ -49,8 +49,8 @@ spring:
       client:
         registration:
           google:
-            client-id: 735045361085-549k3mq46u96v6pfrth1fe6q28fe3jb3.apps.googleusercontent.com
-            client-secret: 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
+            client-id:
+            client-secret:
             scope:
               - email
               - profile
@@ -76,5 +76,5 @@ imdb:
     max-size: 100
 
 tmdb:
-  api-key: ${TMDB_API_KEY:TungDV21}
+  api-key: ${TMDB_API_KEY:tungdv21}
   base-url: https://api.themoviedb.org/3

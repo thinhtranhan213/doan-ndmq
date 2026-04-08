@@ -26,4 +26,22 @@ public interface IMovieService {
      * @return MovieApiResponse containing list of popular movies
      */
     MovieApiResponse getPopularMovies(Integer page);
+
+    /**
+     * Get movies by genre from TMDB API
+     * 
+     * @param genreId genre ID
+     * @param page page number (default 1)
+     * @return MovieApiResponse containing list of movies for the genre
+     */
+    MovieApiResponse getMoviesByGenre(Integer genreId, Integer page);
+
+    /**
+     * Search movies by query from TMDB API
+     * 
+     * @param query search query
+     * @param page page number (default 1)
+     * @return MovieApiResponse containing search results
+     */
+    MovieApiResponse searchMovies(String query, Integer page);
 }

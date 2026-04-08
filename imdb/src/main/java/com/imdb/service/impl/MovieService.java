@@ -102,4 +102,53 @@ public class MovieService implements IMovieService {
             throw new RuntimeException("Failed to fetch popular movies", e);
         }
     }
+
+    @Override
+    public MovieApiResponse getMoviesByGenre(Integer genreId, Integer page) {
+        try {
+            String url = tmdbBaseUrl + "/discover/movie";
+            URI uri = UriComponentsBuilder.fromUriString(url)
+                    .queryParam("with_genres", genreId)
+                    .queryParam("language", "en-US")
+                    .queryParam("page", page != null ? page : 1)
+                    .queryParam("sort_by", "popularity.desc")
+                    .build()
+                    .toUri();
+
+            log.info("Fetching movies by genre {} from TMDB: {}", genreId, uri);
+            ResponseEntity<MovieApiResponse> response = restTemplate.exchange(
+                    uri,
+                    HttpMethod.GET,
+                    createAuthHeaders(),
+                    MovieApiResponse.class);
+            return response.getBody();
+        } catch (Exception e) {
+            log.error("Error fetching movies by genre", e);
+            throw new RuntimeException("Failed to fetch movies by genre", e);
+        }
+    }
+
+    @Override
+    public MovieApiResponse searchMovies(String query, Integer page) {
+        try {
+            String url = tmdbBaseUrl + "/search/movie";
+            URI uri = UriComponentsBuilder.fromUriString(url)
+                    .queryParam("query", query)
+                    .queryParam("language", "en-US")
+                    .queryParam("page", page != null ? page : 1)
+                    .build()
+                    .toUri();
+
+            log.info("Searching movies with query '{}' from TMDB: {}", query, uri);
+            ResponseEntity<MovieApiResponse> response = restTemplate.exchange(
+                    uri,
+                    HttpMethod.GET,
+                    createAuthHeaders(),
+                    MovieApiResponse.class);
+            return response.getBody();
+        } catch (Exception e) {
+            log.error("Error searching movies", e);
+            throw new RuntimeException("Failed to search movies", e);
+        }
+    }
 }

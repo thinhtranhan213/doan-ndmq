@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { getMoviesByGenre } from '../../api/endpoints';
+import { getMoviesByGenreFromBackend } from '../../api/endpoints';
 import { Movie } from '../../types/movie.types';
 import MovieCard from '../../components/MovieCard/MovieCard';
 import Pagination from '../../components/Pagination/Pagination';
@@ -59,7 +59,7 @@ const GenrePage: React.FC = () => {
         try {
             setLoading(true);
             setError(null);
-            const response = await getMoviesByGenre(Number(genreId), page);
+            const response = await getMoviesByGenreFromBackend(Number(genreId), page);
             setMovies(response.results);
             setTotalPages(Math.min(response.total_pages, 500)); // TMDb giới hạn 500 trang
         } catch (err) {

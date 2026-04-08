@@ -145,3 +145,19 @@ export const getPopularMoviesFromBackend = async (page: number = 1): Promise<Api
     });
     return response.data;
 };
+
+// Get movies by genre from backend
+export const getMoviesByGenreFromBackend = async (genreId: number, page: number = 1): Promise<ApiResponse<Movie>> => {
+    const response = await backendApi.get('/public/movies/by-genre', {
+        params: { genreId, page },
+    });
+    return response.data;
+};
+
+// Search movies from backend
+export const searchMoviesFromBackend = async (query: string, page: number = 1): Promise<ApiResponse<Movie>> => {
+    const response = await backendApi.get('/public/movies/search', {
+        params: { query, page },
+    });
+    return response.data;
+};

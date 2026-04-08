@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { getPopularMovies, searchMovies } from '../api/endpoints';
+import { getPopularMovies, searchMoviesFromBackend } from '../api/endpoints';
 import { Movie } from '../types/movie.types';
 import { useMovieStore } from '../store/movieStore';
 
@@ -77,7 +77,7 @@ export const useMovieSearch = (query: string, delay: number = 500) => {
             try {
                 setLoading(true);
                 setError(null);
-                const data = await searchMovies(query);
+                const data = await searchMoviesFromBackend(query);
                 setResults(data.results);
             } catch (err) {
                 setError('Search failed. Please try again.');

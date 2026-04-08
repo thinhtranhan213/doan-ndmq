@@ -52,4 +52,34 @@ public class MovieController {
         MovieApiResponse response = movieService.getPopularMovies(page);
         return ResponseEntity.ok(response);
     }
+
+    /**
+     * Get movies by genre
+     * 
+     * @param genreId genre ID
+     * @param page page number (default: 1)
+     * @return MovieApiResponse with list of movies for the genre
+     */
+    @GetMapping("/by-genre")
+    public ResponseEntity<MovieApiResponse> getMoviesByGenre(
+            @RequestParam Integer genreId,
+            @RequestParam(defaultValue = "1") Integer page) {
+        MovieApiResponse response = movieService.getMoviesByGenre(genreId, page);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Search movies
+     * 
+     * @param query search query
+     * @param page page number (default: 1)
+     * @return MovieApiResponse with search results
+     */
+    @GetMapping("/search")
+    public ResponseEntity<MovieApiResponse> searchMovies(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "1") Integer page) {
+        MovieApiResponse response = movieService.searchMovies(query, page);
+        return ResponseEntity.ok(response);
+    }
 }
