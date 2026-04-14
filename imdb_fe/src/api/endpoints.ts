@@ -17,6 +17,16 @@ export const getConfiguration = async (): Promise<ImageConfig> => {
     return response.data.images;
 };
 
+backendApi.interceptors.request.use((config) => {
+    const token = localStorage.getItem("authToken");
+
+    if (token && !config.url?.includes("/public")) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+});
+
 // Get all genres
 export const getGenres = async (): Promise<Genre[]> => {
     const response = await tmdbApi.get('/genre/movie/list', {
@@ -181,7 +191,7 @@ export const getMovieReviews = async (
 
 export const createReview = async (
     movieId: number,
-    data: { content: string; rating: number }
+    data: { comment: string; rating: number }
 ) => {
     const response = await backendApi.post(
         `/movies/${movieId}/reviews`,

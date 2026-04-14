@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class CreateReviewRequest {
-    private String content;
+    private String comment;
     private Integer rating;
 }

@@ -42,5 +42,5 @@ export const useMovieDetail = (movieId: number) => {
         }
     };
 
-    return { movie, credits, similarMovies, recommendations, reviews, loading, error };
+    return { movie, credits, similarMovies, recommendations, reviews, loading, error, setReviews };
 };

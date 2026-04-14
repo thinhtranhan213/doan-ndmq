@@ -18,12 +18,22 @@ public class MovieController {
     private final IMovieService movieService;
     private final IReviewService reviewService;
 
+//    @PostMapping("/{id}/reviews")
+////    @PreAuthorize("isAuthenticated()")
+//    public ResponseEntity<ReviewItem> createReview(
+//            @PathVariable Long id,
+//            @RequestBody CreateReviewRequest request
+//    ) {
+//        return ResponseEntity.ok(reviewService.createReview(id, request));
+//    }
+
     @PostMapping("/{id}/reviews")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ReviewItem> createReview(
             @PathVariable Long id,
             @RequestBody CreateReviewRequest request
     ) {
-        return ResponseEntity.ok(reviewService.createReview(id, request));
+        ReviewItem response = reviewService.createReview(id, request);
+        return ResponseEntity.ok(response); // 🔥 đảm bảo có body
     }
 }

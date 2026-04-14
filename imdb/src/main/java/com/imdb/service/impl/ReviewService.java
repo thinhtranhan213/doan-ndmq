@@ -132,8 +132,8 @@ public class ReviewService implements IReviewService {
         Review review = Review.builder()
                 .movieId(movieId)
                 .content(
-                        request.getContent() != null && !request.getContent().isBlank()
-                                ? request.getContent()
+                        request.getComment() != null && !request.getComment().isBlank()
+                                ? request.getComment()
                                 : "No comment"
                 )
                 .rating(

@@ -9,28 +9,29 @@ import { createReview } from '../../api/endpoints';
 const MovieDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     // const navigate = useNavigate();
-    const { movie, credits, similarMovies, recommendations, reviews, loading, error } = useMovieDetail(Number(id));
+    const { movie, credits, similarMovies, recommendations, reviews, loading, error, setReviews } = useMovieDetail(Number(id));
     const [showAllCast, setShowAllCast] = useState(false);
     // const [showAllReviews, setShowAllReviews] = useState(false);
 
     const [comment, setComment] = useState('');
     const [rating, setRating] = useState<number>(0);
-    const [userReviews, setUserReviews] = useState<any[]>([]);
     const [submitting, setSubmitting] = useState(false);
+    
+    
 
     const handleSubmitReview = async () => {
         if (!comment || rating === 0) return;
 
         try {
             setSubmitting(true);
-
+            
             const newReview = await createReview(Number(id), {
-                content: comment,
+                comment,
                 rating
             });
 
             // 🔥 add vào list hiện tại
-            setUserReviews((prev) => [newReview, ...prev]);
+            setReviews((prev) => [newReview, ...prev]);
 
             setComment('');
             setRating(0);
