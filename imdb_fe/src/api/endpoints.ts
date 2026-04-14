@@ -79,12 +79,12 @@ export const getMovieRecommendations = async (movieId: number, page: number = 1)
 };
 
 // Get movie reviews
-export const getMovieReviews = async (movieId: number, page: number = 1): Promise<ApiResponse<Review>> => {
-    const response = await tmdbApi.get(`/movie/${movieId}/reviews`, {
-        params: { page, language: 'en-US' },
-    });
-    return response.data;
-};
+// export const getMovieReviews = async (movieId: number, page: number = 1): Promise<ApiResponse<Review>> => {
+//     const response = await tmdbApi.get(`/movie/${movieId}/reviews`, {
+//         params: { page, language: 'en-US' },
+//     });
+//     return response.data;
+// };
 
 // Get movie videos
 export const getMovieVideos = async (movieId: number): Promise<VideoResponse> => {
@@ -161,3 +161,47 @@ export const searchMoviesFromBackend = async (query: string, page: number = 1): 
     });
     return response.data;
 };
+
+// ======================================
+// Backend API Endpoints (Comment & Rate)
+// Lấy review của phim (comment và rate từ phía DB và TMDB)
+// Đăng bài review mới và ghi vào DB
+// ======================================
+export const getMovieReviews = async (
+    movieId: number,
+    page: number = 1
+): Promise<ApiResponse<Review>> => {
+
+    const response = await backendApi.get(`/public/movies/${movieId}/reviews`, {
+        params: { page }
+    });
+
+    return response.data;
+};
+
+export const createReview = async (
+    movieId: number,
+    data: { content: string; rating: number }
+) => {
+    const response = await backendApi.post(
+        `/movies/${movieId}/reviews`,
+        data
+    );
+
+    return response.data;
+};
+
+// ======================================
+// TMDB API Endpoints (Actor & Company Details)
+// Lấy thông tin chi tiết của Diễn viên & Hãng phim sản xuất từ TMDB
+// ======================================
+
+
+// ======================================
+// Backend API Endpoints (Playlist)
+// Tạo playlist riêng của bản thân bằng nút [Add to playlist] ở trang MovieDetail
+// ======================================
+
+
+
+

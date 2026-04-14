@@ -4,6 +4,7 @@ import { useMovieDetail } from '../../hooks/useMovieDetail';
 import MovieCard from '../../components/MovieCard/MovieCard';
 import { getImageUrl, IMAGE_SIZES, formatDate, formatRuntime, formatCurrency } from '../../utils/constants';
 import { useState } from 'react';
+import { createReview } from '../../api/endpoints';
 
 const MovieDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -12,6 +13,35 @@ const MovieDetail: React.FC = () => {
     const [showAllCast, setShowAllCast] = useState(false);
     // const [showAllReviews, setShowAllReviews] = useState(false);
 
+    const [comment, setComment] = useState('');
+    const [rating, setRating] = useState<number>(0);
+    const [userReviews, setUserReviews] = useState<any[]>([]);
+    const [submitting, setSubmitting] = useState(false);
+
+    const handleSubmitReview = async () => {
+        if (!comment || rating === 0) return;
+
+        try {
+            setSubmitting(true);
+
+            const newReview = await createReview(Number(id), {
+                content: comment,
+                rating
+            });
+
+            // 🔥 add vào list hiện tại
+            setUserReviews((prev) => [newReview, ...prev]);
+
+            setComment('');
+            setRating(0);
+
+        } catch (err) {
+            console.error(err);
+            alert("Failed to submit review");
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -224,6 +254,52 @@ const MovieDetail: React.FC = () => {
                                 )}
                             </div>
                         )}
+
+                        {/* User Comment Section */}
+                        <div className="mb-12 bg-slate-800 p-6 rounded-lg">
+                            <h2 className="text-2xl font-bold text-white mb-4">📝 Your Review</h2>
+
+                            {/* Rating */}
+                            <div className="mb-4">
+                                <p className="text-gray-400 mb-2">Your Rating</p>
+                                <div className="flex gap-2 flex-wrap">
+                                    {[...Array(10)].map((_, i) => {
+                                        const value = i + 1;
+                                        return (
+                                            <button
+                                                key={value}
+                                                onClick={() => setRating(value)}
+                                                className={`px-3 py-1 rounded 
+                            ${rating >= value
+                                                        ? 'bg-imdb-yellow text-white'
+                                                        : 'bg-imdb-gray text-gray-300'
+                                                    }`}
+                                            >
+                                                {value}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Comment Input */}
+                            <textarea
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
+                                placeholder="Write your thoughts about this movie..."
+                                className="w-full p-3 rounded bg-imdb-gray text-white mb-4"
+                                rows={4}
+                            />
+
+                            {/* Submit */}
+                            <button
+                                onClick={handleSubmitReview}
+                                disabled={submitting}
+                                className="bg-imdb-yellow text-white px-4 py-2 rounded hover:bg-yellow-500 disabled:opacity-50"
+                            >
+                                {submitting ? "Submitting..." : "Submit Review"}
+                            </button>
+                        </div>
 
                         {/* Reviews Section */}
                         {reviews.map((review) => {

@@ -1,28 +1,33 @@
 package com.imdb.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Entity
-@Getter
-@Setter
-public class Review extends AuditableEntity {
+@Table(name = "reviews")
+@Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Review {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;
+    private Long movieId; // TMDB movieId
 
-    @Column(columnDefinition = "TEXT")
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    private Long helpfulCount = 0L;
+    @Column(nullable = false)
+    private Integer rating; // 1–10
 
-    @ManyToOne
+    private LocalDateTime createdAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
     private User user;
-
-    @ManyToOne
-    private Movie movie;
 }
