@@ -1,7 +1,9 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import SearchBar from '../SearchBar/SearchBar';
+import LanguageSwitcher from '../LanguageSwitcher/LanguageSwitcher';
 import { useAuthStore } from '../../store/authStore';
 
 interface Genre {
@@ -11,6 +13,7 @@ interface Genre {
 }
 
 const Navbar: React.FC = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { user, logout } = useAuthStore();
     const [isGenreDropdownOpen, setIsGenreDropdownOpen] = useState(false);
@@ -19,14 +22,14 @@ const Navbar: React.FC = () => {
     const userDropdownRef = useRef<HTMLDivElement>(null);
 
     const genres: Genre[] = [
-        { id: 28, name: 'Action', emoji: '🎬' },
-        { id: 35, name: 'Comedy', emoji: '😂' },
-        { id: 18, name: 'Drama', emoji: '🎭' },
-        { id: 27, name: 'Horror', emoji: '👻' },
-        { id: 878, name: 'Science Fiction', emoji: '🚀' },
-        { id: 53, name: 'Thriller', emoji: '🔪' },
-        { id: 10749, name: 'Romance', emoji: '💕' },
-        { id: 16, name: 'Animation', emoji: '🎨' },
+        { id: 28, name: t('genres.Action'), emoji: '🎬' },
+        { id: 35, name: t('genres.Comedy'), emoji: '😂' },
+        { id: 18, name: t('genres.Drama'), emoji: '🎭' },
+        { id: 27, name: t('genres.Horror'), emoji: '👻' },
+        { id: 878, name: t('genres.ScienceFiction'), emoji: '🚀' },
+        { id: 53, name: t('genres.Thriller'), emoji: '🔪' },
+        { id: 10749, name: t('genres.Romance'), emoji: '💕' },
+        { id: 16, name: t('genres.Animation'), emoji: '🎨' },
     ];
 
     // Close dropdown when clicking outside
@@ -93,7 +96,7 @@ const Navbar: React.FC = () => {
                                     : 'text-white hover:text-imdb-yellow transition px-4'
                             }
                         >
-                            Home
+                            {t('navbar.home')}
                         </NavLink>
 
                         {/* Genres Dropdown */}
@@ -102,7 +105,7 @@ const Navbar: React.FC = () => {
                                 onClick={toggleGenreDropdown}
                                 className="flex items-center gap-2 text-white hover:text-imdb-yellow transition px-4 py-2 cursor-pointer"
                             >
-                                <span>Genres</span>
+                                <span>{t('navbar.genres')}</span>
                                 <svg
                                     className={`w-4 h-4 transition-transform duration-200 ${isGenreDropdownOpen ? 'rotate-180' : ''
                                         }`}
@@ -147,16 +150,20 @@ const Navbar: React.FC = () => {
                                     : 'text-white hover:text-imdb-yellow transition px-4'
                             }
                         >
-                            Search
+                            {t('common.search')}
                         </NavLink>
                     </div>
-
-
 
                     {/* Search Bar */}
                     <div className="flex-1 max-w-xl ml-auto">
                         <SearchBar />
                     </div>
+
+                    {/* Language Switcher */}
+                    <div className="ml-4">
+                        <LanguageSwitcher />
+                    </div>
+
                     {/* User Account Dropdown */}
                     {user && (
                         <div className="relative ml-4" ref={userDropdownRef}>
@@ -214,7 +221,7 @@ const Navbar: React.FC = () => {
                                                     d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                                                 />
                                             </svg>
-                                            <span>My Profile</span>
+                                            <span>{t('profile.profile')}</span>
                                         </button>
                                         <button
                                             onClick={handleLogout}
@@ -233,7 +240,7 @@ const Navbar: React.FC = () => {
                                                     d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                                                 />
                                             </svg>
-                                            <span>Logout</span>
+                                            <span>{t('navbar.logout')}</span>
                                         </button>
                                     </div>
                                 </div>

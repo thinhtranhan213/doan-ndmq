@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { requestPasswordReset, verifyResetCode, resetPassword } from '../../api/password';
 import backgroundImage from '../../assets/background_login.webp';
 
 type Step = 'email' | 'verify' | 'reset' | 'success';
 
 const ForgotPassword: React.FC = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [step, setStep] = useState<Step>('email');
     const [isLoading, setIsLoading] = useState(false);
@@ -34,9 +36,9 @@ const ForgotPassword: React.FC = () => {
     const validateEmail = (): boolean => {
         const newErrors: { [key: string]: string } = {};
         if (!email) {
-            newErrors.email = 'Email is required';
+            newErrors.email = t('auth.emailRequired');
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            newErrors.email = 'Email is invalid';
+            newErrors.email = t('auth.emailInvalid');
         }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -59,7 +61,7 @@ const ForgotPassword: React.FC = () => {
                 }
             } else {
                 // Handle rate limiting error
-                const errorMsg = response.message || 'Failed to request password reset';
+                const errorMsg = response.message || t('auth.resetPasswordFailed');
                 const remainingTime = response.remainingWaitTimeSeconds || 0;
                 const errorDisplay = remainingTime > 0
                     ? `${errorMsg}`
@@ -70,7 +72,7 @@ const ForgotPassword: React.FC = () => {
                 }
             }
         } catch (err: any) {
-            const errorMsg = err.response?.data?.message || 'Failed to request password reset';
+            const errorMsg = err.response?.data?.message || t('auth.resetPasswordFailed');
             setErrors({ email: errorMsg });
         } finally {
             setIsLoading(false);
@@ -104,7 +106,7 @@ const ForgotPassword: React.FC = () => {
         e.preventDefault();
         const code = resetCode.join('');
         if (code.length !== 6) {
-            setErrors({ code: 'Please enter all 6 digits' });
+            setErrors({ code: t('auth.enterAllDigits') });
             return;
         }
 
@@ -114,7 +116,7 @@ const ForgotPassword: React.FC = () => {
             setStep('reset');
             setErrors({});
         } catch (err: any) {
-            const errorMsg = err.response?.data?.message || 'Invalid verification code';
+            const errorMsg = err.response?.data?.message || t('auth.invalidVerificationCode');
             setErrors({ code: errorMsg });
         } finally {
             setIsLoading(false);
@@ -125,20 +127,20 @@ const ForgotPassword: React.FC = () => {
     const validatePassword = (): boolean => {
         const newErrors: { [key: string]: string } = {};
         if (!newPassword) {
-            newErrors.password = 'Password is required';
+            newErrors.password = t('auth.passwordRequired');
         } else if (newPassword.length < 8) {
-            newErrors.password = 'Password must be at least 8 characters';
+            newErrors.password = t('auth.passwordMinLength');
         } else if (!/(?=.*[a-z])/.test(newPassword)) {
-            newErrors.password = 'Password must contain at least one lowercase letter';
+            newErrors.password = t('auth.passwordLowercase');
         } else if (!/(?=.*[A-Z])/.test(newPassword)) {
-            newErrors.password = 'Password must contain at least one uppercase letter';
+            newErrors.password = t('auth.passwordUppercase');
         } else if (!/(?=.*\d)/.test(newPassword)) {
-            newErrors.password = 'Password must contain at least one number';
+            newErrors.password = t('auth.passwordNumber');
         }
         if (!confirmPassword) {
-            newErrors.confirmPassword = 'Please confirm your password';
+            newErrors.confirmPassword = t('auth.confirmPasswordRequired');
         } else if (newPassword !== confirmPassword) {
-            newErrors.confirmPassword = 'Passwords do not match';
+            newErrors.confirmPassword = t('auth.passwordNotMatch');
         }
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -153,11 +155,11 @@ const ForgotPassword: React.FC = () => {
         setIsLoading(true);
         try {
             await resetPassword({ email, code, newPassword });
-            setSuccessMessage('Password has been reset successfully!');
+            setSuccessMessage(t('auth.resetPasswordSuccess'));
             setStep('success');
             setErrors({});
         } catch (err: any) {
-            const errorMsg = err.response?.data?.message || 'Failed to reset password';
+            const errorMsg = err.response?.data?.message || t('auth.resetPasswordFailed');
             setErrors({ password: errorMsg });
         } finally {
             setIsLoading(false);
@@ -205,12 +207,12 @@ const ForgotPassword: React.FC = () => {
                 {/* Step 1: Forgot Password */}
                 {step === 'email' && (
                     <>
-                        <h1 className="text-2xl font-bold text-gray-800 mb-2">Forgot password</h1>
-                        <p className="text-gray-600 text-sm mb-6">Please enter your email to reset the password</p>
+                        <h1 className="text-2xl font-bold text-gray-800 mb-2">{t('auth.forgotPassword')}</h1>
+                        <p className="text-gray-600 text-sm mb-6">{t('auth.forgotPasswordDescription')}</p>
 
                         <form onSubmit={handleRequestReset} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Your Email</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">{t('auth.yourEmail')}</label>
                                 <input
                                     type="email"
                                     value={email}
@@ -218,7 +220,7 @@ const ForgotPassword: React.FC = () => {
                                         setEmail(e.target.value);
                                         if (errors.email) setErrors({});
                                     }}
-                                    placeholder="Enter your email"
+                                    placeholder={t('auth.enterYourEmail')}
                                     className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-gray-900 placeholder:text-gray-400 ${errors.email ? 'border-red-500' : 'border-gray-300'
                                         }`}
                                 />
@@ -229,15 +231,15 @@ const ForgotPassword: React.FC = () => {
                                 type="submit"
                                 disabled={isLoading || remainingWaitTime > 0}
                                 className={`w-full py-3 rounded-lg font-semibold transition ${isLoading || remainingWaitTime > 0
-                                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                        : 'bg-blue-500 text-white hover:bg-blue-600'
+                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                    : 'bg-blue-500 text-white hover:bg-blue-600'
                                     }`}
                             >
                                 {isLoading
-                                    ? 'Sending...'
+                                    ? t('common.sending')
                                     : remainingWaitTime > 0
-                                        ? `Wait ${remainingWaitTime}s before resending`
-                                        : 'Reset Password'
+                                        ? `${t('auth.waitBeforeResending')} ${remainingWaitTime}s`
+                                        : t('auth.resetPassword')
                                 }
                             </button>
                         </form>
@@ -247,9 +249,9 @@ const ForgotPassword: React.FC = () => {
                 {/* Step 2: Verify Email */}
                 {step === 'verify' && (
                     <>
-                        <h1 className="text-2xl font-bold text-gray-800 mb-2">Check your email</h1>
-                        <p className="text-gray-600 text-sm mb-2">We sent a reset link to {email}</p>
-                        <p className="text-gray-600 text-sm mb-6">enter 6 digit code that mentioned in the email</p>
+                        <h1 className="text-2xl font-bold text-gray-800 mb-2">{t('auth.checkEmail')}</h1>
+                        <p className="text-gray-600 text-sm mb-2">{t('auth.sentResetLink')} {email}</p>
+                        <p className="text-gray-600 text-sm mb-6">{t('auth.enterResetCode')}</p>
 
                         <form onSubmit={handleVerifyCode} className="space-y-4">
                             <div>
@@ -280,17 +282,17 @@ const ForgotPassword: React.FC = () => {
                                     : 'bg-blue-500 text-white hover:bg-blue-600'
                                     }`}
                             >
-                                {isLoading ? 'Verifying...' : 'Verify Code'}
+                                {isLoading ? t('auth.verifying') : t('auth.verifyCode')}
                             </button>
 
                             <p className="text-center text-sm text-gray-600">
-                                Haven't got the email yet?{' '}
+                                {t('auth.haventReceivedEmail')}{' '}
                                 <button
                                     type="button"
                                     onClick={handleRequestReset}
                                     className="text-blue-600 hover:underline font-semibold"
                                 >
-                                    Resend email
+                                    {t('auth.resendEmail')}
                                 </button>
                             </p>
                         </form>
@@ -300,21 +302,21 @@ const ForgotPassword: React.FC = () => {
                 {/* Step 3: Set New Password */}
                 {step === 'reset' && (
                     <>
-                        <h1 className="text-2xl font-bold text-gray-800 mb-2">Set a new password</h1>
+                        <h1 className="text-2xl font-bold text-gray-800 mb-2">{t('auth.setNewPassword')}</h1>
                         <p className="text-gray-600 text-sm mb-6">
-                            Create a new password. Ensure it differs from previous ones for security
+                            {t('auth.createNewPassword')}
                         </p>
 
                         <form onSubmit={handleResetPassword} className="space-y-4">
                             <div>
                                 <div className="flex items-center justify-between mb-2">
-                                    <label className="text-sm font-medium text-gray-700">Password</label>
+                                    <label className="text-sm font-medium text-gray-700">{t('auth.password')}</label>
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
                                         className="text-sm text-blue-600 hover:text-blue-700"
                                     >
-                                        {showPassword ? 'Hide' : 'Show'}
+                                        {showPassword ? t('common.hide') : t('common.show')}
                                     </button>
                                 </div>
                                 <input
@@ -324,27 +326,27 @@ const ForgotPassword: React.FC = () => {
                                         setNewPassword(e.target.value);
                                         if (errors.password) setErrors({});
                                     }}
-                                    placeholder="Enter your new password"
+                                    placeholder={t('auth.enterNewPassword')}
                                     className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-gray-900 placeholder:text-gray-400 ${errors.password ? 'border-red-500' : 'border-gray-300'
                                         }`}
                                 />
                                 {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
                                 {!errors.password && (
                                     <p className="text-gray-500 text-xs mt-2">
-                                        Password must contain: 8+ characters, uppercase letter, lowercase letter, number
+                                        {t('auth.passwordRequirements')}
                                     </p>
                                 )}
                             </div>
 
                             <div>
                                 <div className="flex items-center justify-between mb-2">
-                                    <label className="text-sm font-medium text-gray-700">Confirm Password</label>
+                                    <label className="text-sm font-medium text-gray-700">{t('auth.confirmPassword')}</label>
                                     <button
                                         type="button"
                                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                         className="text-sm text-blue-600 hover:text-blue-700"
                                     >
-                                        {showConfirmPassword ? 'Hide' : 'Show'}
+                                        {showConfirmPassword ? t('common.hide') : t('common.show')}
                                     </button>
                                 </div>
                                 <input
@@ -354,7 +356,7 @@ const ForgotPassword: React.FC = () => {
                                         setConfirmPassword(e.target.value);
                                         if (errors.confirmPassword) setErrors({});
                                     }}
-                                    placeholder="Re-enter password"
+                                    placeholder={t('auth.reEnterPassword')}
                                     className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-gray-900 placeholder:text-gray-400 ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
                                         }`}
                                 />
@@ -371,7 +373,7 @@ const ForgotPassword: React.FC = () => {
                                     : 'bg-blue-500 text-white hover:bg-blue-600'
                                     }`}
                             >
-                                {isLoading ? 'Updating...' : 'Update Password'}
+                                {isLoading ? t('common.updating') : t('auth.updatePassword')}
                             </button>
                         </form>
                     </>
@@ -385,16 +387,16 @@ const ForgotPassword: React.FC = () => {
                                 <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
                             </svg>
                         </div>
-                        <h1 className="text-2xl font-bold text-gray-800 mb-2">Password reset</h1>
+                        <h1 className="text-2xl font-bold text-gray-800 mb-2">{t('auth.passwordResetSuccessTitle')}</h1>
                         <p className="text-gray-600 text-sm text-center mb-8">
-                            Your password has been successfully reset. Click below to set a new password
+                            {t('auth.passwordResetSuccessMessage')}
                         </p>
 
                         <button
                             onClick={handleRedirectToLogin}
                             className="w-full py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition"
                         >
-                            Confirm
+                            {t('common.confirm')}
                         </button>
                     </div>
                 )}

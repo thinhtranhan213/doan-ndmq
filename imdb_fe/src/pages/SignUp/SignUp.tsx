@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { signUpUser } from '../../api/auth';
 import { useAuthStore } from '../../store/authStore';
 import backgroundImage from '../../assets/background_login.webp';
 
 const SignUp: React.FC = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { login, setError, setLoading } = useAuthStore();
     const [isLoading, setIsLoading] = useState(false);
@@ -48,35 +50,35 @@ const SignUp: React.FC = () => {
         const newErrors: typeof errors = {};
 
         if (!formData.firstName.trim()) {
-            newErrors.firstName = 'First name is required';
+            newErrors.firstName = t('auth.firstNameRequired');
         }
 
         if (!formData.lastName.trim()) {
-            newErrors.lastName = 'Last name is required';
+            newErrors.lastName = t('auth.lastNameRequired');
         }
 
         if (!formData.email) {
-            newErrors.email = 'Email is required';
+            newErrors.email = t('auth.emailRequired');
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-            newErrors.email = 'Email is invalid';
+            newErrors.email = t('auth.emailInvalid');
         }
 
         if (!formData.password) {
-            newErrors.password = 'Password is required';
+            newErrors.password = t('auth.passwordRequired');
         } else if (formData.password.length < 8) {
-            newErrors.password = 'Password must be at least 8 characters';
+            newErrors.password = t('auth.passwordMinLength8');
         } else if (!/(?=.*[a-z])/.test(formData.password)) {
-            newErrors.password = 'Password must contain at least one lowercase letter';
+            newErrors.password = t('auth.passwordLowercaseRequired');
         } else if (!/(?=.*[A-Z])/.test(formData.password)) {
-            newErrors.password = 'Password must contain at least one uppercase letter';
+            newErrors.password = t('auth.passwordUppercaseRequired');
         } else if (!/(?=.*\d)/.test(formData.password)) {
-            newErrors.password = 'Password must contain at least one number';
+            newErrors.password = t('auth.passwordNumberRequired');
         }
 
         if (!formData.passwordConfirm) {
-            newErrors.passwordConfirm = 'Please confirm password';
+            newErrors.passwordConfirm = t('auth.passwordConfirmRequired');
         } else if (formData.password !== formData.passwordConfirm) {
-            newErrors.passwordConfirm = 'Passwords do not match';
+            newErrors.passwordConfirm = t('auth.passwordMismatch');
         }
 
         setErrors(newErrors);
@@ -106,7 +108,7 @@ const SignUp: React.FC = () => {
             login(response);
             navigate('/');
         } catch (err: any) {
-            const errorMessage = err.response?.data?.message || 'Sign up failed. Please try again.';
+            const errorMessage = err.response?.data?.message || t('auth.signupFailed');
             setError(errorMessage);
             setErrors({ email: errorMessage });
         } finally {
@@ -139,7 +141,7 @@ const SignUp: React.FC = () => {
                 </button>
 
                 {/* Header */}
-                <h1 className="text-2xl font-bold text-gray-800 mb-6">Sign up</h1>
+                <h1 className="text-2xl font-bold text-gray-800 mb-6">{t('auth.signup')}</h1>
 
                 {/* Social Sign Up Buttons */}
                 <div className="space-y-3 mb-6">
@@ -153,7 +155,7 @@ const SignUp: React.FC = () => {
                                 d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
                             />
                         </svg>
-                        Sign up with Facebook
+                        {t('auth.signupWithFacebook')}
                     </button>
 
                     <button
@@ -178,7 +180,7 @@ const SignUp: React.FC = () => {
                                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                             />
                         </svg>
-                        Sign up with Google
+                        {t('auth.signupWithGoogle')}
                     </button>
                 </div>
 
@@ -195,13 +197,13 @@ const SignUp: React.FC = () => {
                     <div className="grid grid-cols-2 gap-4">
                         {/* First Name Field */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">First name</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">{t('auth.firstName')}</label>
                             <input
                                 type="text"
                                 name="firstName"
                                 value={formData.firstName}
                                 onChange={handleInputChange}
-                                placeholder="John"
+                                placeholder={t('auth.firstNamePlaceholder')}
                                 className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-gray-900 placeholder:text-gray-400 ${errors.firstName ? 'border-red-500' : 'border-gray-300'
                                     }`}
                             />
@@ -210,13 +212,13 @@ const SignUp: React.FC = () => {
 
                         {/* Last Name Field */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Last name</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">{t('auth.lastName')}</label>
                             <input
                                 type="text"
                                 name="lastName"
                                 value={formData.lastName}
                                 onChange={handleInputChange}
-                                placeholder="Doe"
+                                placeholder={t('auth.lastNamePlaceholder')}
                                 className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-gray-900 placeholder:text-gray-400 ${errors.lastName ? 'border-red-500' : 'border-gray-300'
                                     }`}
                             />
@@ -226,13 +228,13 @@ const SignUp: React.FC = () => {
 
                     {/* Email Field */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Email address</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">{t('auth.email')}</label>
                         <input
                             type="email"
                             name="email"
                             value={formData.email}
                             onChange={handleInputChange}
-                            placeholder="example@email.com"
+                            placeholder={t('auth.emailPlaceholder')}
                             className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-gray-900 placeholder:text-gray-400 ${errors.email ? 'border-red-500' : 'border-gray-300'
                                 }`}
                         />
@@ -241,14 +243,14 @@ const SignUp: React.FC = () => {
 
                     {/* Password Field */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">{t('auth.password')}</label>
                         <div className="relative">
                             <input
                                 type={showPassword ? 'text' : 'password'}
                                 name="password"
                                 value={formData.password}
                                 onChange={handleInputChange}
-                                placeholder="At least 8 characters with uppercase, lowercase, and number"
+                                placeholder={t('auth.passwordPlaceholder')}
                                 className={`w-full px-4 py-3 pr-10 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-gray-900 placeholder:text-gray-400 text-sm ${errors.password ? 'border-red-500' : 'border-gray-300'
                                     }`}
                             />
@@ -265,14 +267,14 @@ const SignUp: React.FC = () => {
 
                     {/* Confirm Password Field */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">{t('auth.confirmPassword')}</label>
                         <div className="relative">
                             <input
                                 type={showPasswordConfirm ? 'text' : 'password'}
                                 name="passwordConfirm"
                                 value={formData.passwordConfirm}
                                 onChange={handleInputChange}
-                                placeholder="Re-enter your password"
+                                placeholder={t('auth.confirmPasswordPlaceholder')}
                                 className={`w-full px-4 py-3 pr-10 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition text-gray-900 placeholder:text-gray-400 text-sm ${errors.passwordConfirm ? 'border-red-500' : 'border-gray-300'
                                     }`}
                             />
@@ -296,15 +298,15 @@ const SignUp: React.FC = () => {
                             : 'bg-gradient-to-r from-gray-400 to-gray-500 text-white hover:from-gray-500 hover:to-gray-600'
                             }`}
                     >
-                        {isLoading ? 'Signing up...' : 'Sign up'}
+                        {isLoading ? `${t('common.loading')}...` : t('auth.signup')}
                     </button>
                 </form>
 
                 {/* Login Link */}
                 <p className="text-center text-sm text-gray-600 mt-6">
-                    Already have an account?{' '}
+                    {t('auth.alreadyHaveAccount')}{' '}
                     <Link to="/login" className="text-blue-600 hover:underline font-semibold">
-                        Log in
+                        {t('auth.login')}
                     </Link>
                 </p>
             </div>

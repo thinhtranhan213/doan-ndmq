@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { loginUser, loginWithGoogle } from '../../api/auth';
 import { useAuthStore } from '../../store/authStore';
 import backgroundImage from '../../assets/background_login.webp';
 
 const Login: React.FC = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { login, setError, setLoading } = useAuthStore();
     const [isLoading, setIsLoading] = useState(false);
@@ -38,15 +40,15 @@ const Login: React.FC = () => {
         const newErrors: { email?: string; password?: string } = {};
 
         if (!formData.email) {
-            newErrors.email = 'Email is required';
+            newErrors.email = t('auth.emailRequired');
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-            newErrors.email = 'Email is invalid';
+            newErrors.email = t('auth.emailInvalid');
         }
 
         if (!formData.password) {
-            newErrors.password = 'Password is required';
+            newErrors.password = t('auth.passwordRequired');
         } else if (formData.password.length < 6) {
-            newErrors.password = 'Password must be at least 6 characters';
+            newErrors.password = t('auth.passwordMinLength');
         }
 
         setErrors(newErrors);
@@ -74,7 +76,7 @@ const Login: React.FC = () => {
             login(response);
             navigate('/');
         } catch (err: any) {
-            const errorMessage = err.response?.data?.message || 'Login failed. Please try again.';
+            const errorMessage = err.response?.data?.message || t('auth.loginFailed');
             setError(errorMessage);
             setErrors({ email: errorMessage });
         } finally {
@@ -112,11 +114,11 @@ const Login: React.FC = () => {
                 {/* Header */}
                 <div className="text-center mb-8">
                     <div className="w-12 h-12 mx-auto mb-4 rounded-full border-4 border-gray-300 border-t-blue-500 animate-spin"></div>
-                    <h1 className="text-2xl font-bold text-gray-800">Log in</h1>
+                    <h1 className="text-2xl font-bold text-gray-800">{t('auth.login')}</h1>
                     <p className="text-sm text-gray-600 mt-2">
-                        Don't have an account?{' '}
+                        {t('auth.dontHaveAccount')}{' '}
                         <Link to="/signup" className="text-blue-600 hover:underline font-semibold">
-                            Sign up
+                            {t('auth.signup')}
                         </Link>
                     </p>
                 </div>
@@ -133,7 +135,7 @@ const Login: React.FC = () => {
                                 d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
                             />
                         </svg>
-                        Log in with Facebook
+                        {t('auth.login')} with Facebook
                     </button>
 
                     <button
@@ -158,7 +160,7 @@ const Login: React.FC = () => {
                                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                             />
                         </svg>
-                        Log in with Google
+                        {t('auth.loginWithGoogle')}
                     </button>
                 </div>
 
@@ -173,7 +175,7 @@ const Login: React.FC = () => {
                 <form onSubmit={handleLogin} className="space-y-4">
                     {/* Email Field */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Your email</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">{t('auth.email')}</label>
                         <input
                             type="email"
                             name="email"
@@ -189,7 +191,7 @@ const Login: React.FC = () => {
                     {/* Password Field */}
                     <div>
                         <div className="flex items-center justify-between mb-2">
-                            <label className="block text-sm font-medium text-gray-700">Your password</label>
+                            <label className="block text-sm font-medium text-gray-700">{t('auth.password')}</label>
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
@@ -213,7 +215,7 @@ const Login: React.FC = () => {
                     {/* Forgot password link */}
                     <div className="text-right">
                         <Link to="/forgot-password" className="text-sm text-gray-600 hover:text-blue-600 font-semibold">
-                            Forgot your password
+                            {t('auth.forgotPassword')}
                         </Link>
                     </div>
 
@@ -226,7 +228,7 @@ const Login: React.FC = () => {
                             : 'bg-gradient-to-r from-gray-400 to-gray-500 text-white hover:from-gray-500 hover:to-gray-600'
                             }`}
                     >
-                        {isLoading ? 'Logging in...' : 'Log in'}
+                        {isLoading ? `${t('common.loading')}...` : t('auth.login')}
                     </button>
                 </form>
             </div>

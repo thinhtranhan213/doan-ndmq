@@ -1,11 +1,13 @@
 
 import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useMultipleMovieSections } from '../../hooks/useMultipleMovieSections';
 import MovieSection from '../../components/MovieSection/MovieSection';
 import VideoHero from '../../components/VideoHero/VideoHero';
 import Footer from '../../components/Footer/Footer';
 
 const Home: React.FC = () => {
+    const { t } = useTranslation();
     const { trending, topRated, popular, loading, error } = useMultipleMovieSections();
 
     useEffect(() => {
@@ -16,7 +18,7 @@ const Home: React.FC = () => {
         return (
             <div className="min-h-screen bg-gray-900 flex items-center justify-center">
                 <div className="text-center">
-                    <h2 className="text-2xl font-bold text-red-500 mb-4">Error Loading Movies</h2>
+                    <h2 className="text-2xl font-bold text-red-500 mb-4">{t('movies.errorLoading')}</h2>
                     <p className="text-gray-400">{error}</p>
                 </div>
             </div>
@@ -39,7 +41,7 @@ const Home: React.FC = () => {
                 {/* Trending Section */}
                 <div className="py-12">
                     <MovieSection
-                        title="🔥 Trending This Week"
+                        title={`🔥 ${t('movies.trendingThisWeek')}`}
                         movies={trending}
                         loading={loading}
                     />
@@ -48,7 +50,7 @@ const Home: React.FC = () => {
                 {/* Top Rated Section */}
                 <div className="py-12 border-t border-gray-700">
                     <MovieSection
-                        title="⭐ Top Rated Movies"
+                        title={`⭐ ${t('movies.topRatedMovies')}`}
                         movies={topRated}
                         loading={loading}
                     />
@@ -57,7 +59,7 @@ const Home: React.FC = () => {
                 {/* Popular Interests Section */}
                 <div className="py-12 border-t border-gray-700">
                     <MovieSection
-                        title="🎯 Popular Interests"
+                        title={`🎯 ${t('movies.popularInterests')}`}
                         movies={popular}
                         loading={loading}
                     />

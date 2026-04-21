@@ -1,5 +1,6 @@
 
 import React, { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import MovieCard from '../MovieCard/MovieCard';
 import { Movie } from '../../types/movie.types';
 
@@ -11,6 +12,7 @@ interface MovieSectionProps {
 }
 
 const MovieSection: React.FC<MovieSectionProps> = ({ title, description, movies, loading }) => {
+    const { t } = useTranslation();
     const carouselRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -28,7 +30,7 @@ const MovieSection: React.FC<MovieSectionProps> = ({ title, description, movies,
     if (!movies || movies.length === 0) {
         return (
             <div className="text-center text-gray-400 py-12">
-                <p className="text-lg">No movies found</p>
+                <p className="text-lg">{t('common.noMoviesFound')}</p>
             </div>
         );
     }

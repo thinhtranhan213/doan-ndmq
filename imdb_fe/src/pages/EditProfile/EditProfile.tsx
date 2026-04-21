@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
 import { getCurrentUserProfile, ProfileResponse, updateProfile } from '../../api/auth';
 import PasswordChangeModal from '../../components/PasswordChangeModal/PasswordChangeModal';
 
 const EditProfile: React.FC = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { isAuthenticated } = useAuthStore();
     const [userProfile, setUserProfile] = useState<ProfileResponse['user'] | null>(null);
@@ -39,7 +41,7 @@ const EditProfile: React.FC = () => {
                     email: profile.user.email || ''
                 });
             } catch (err) {
-                setError('Failed to load profile');
+                setError(t('common.failedToLoadProfile'));
                 console.error('Failed to load user profile', err);
             } finally {
                 setLoading(false);
@@ -49,7 +51,7 @@ const EditProfile: React.FC = () => {
         if (isAuthenticated) {
             fetchUserProfile();
         }
-    }, [isAuthenticated]);
+    }, [isAuthenticated, t]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -67,7 +69,7 @@ const EditProfile: React.FC = () => {
 
         // Validation
         if (!formData.firstName.trim()) {
-            setError('First name is required');
+            setError(t('auth.firstNameRequired'));
             return;
         }
 
@@ -79,7 +81,7 @@ const EditProfile: React.FC = () => {
                 email: formData.email
             });
 
-            setSuccessMessage('Profile updated successfully!');
+            setSuccessMessage(t('common.profileUpdatedSuccessfully'));
             setTimeout(() => {
                 setSuccessMessage(null);
                 navigate('/profile');
@@ -94,7 +96,7 @@ const EditProfile: React.FC = () => {
     if (loading) {
         return (
             <div className="min-h-screen bg-slate-950 pt-20 flex items-center justify-center">
-                <div className="text-white">Loading profile...</div>
+                <div className="text-white">{t('profile.loadingProfile')}</div>
             </div>
         );
     }

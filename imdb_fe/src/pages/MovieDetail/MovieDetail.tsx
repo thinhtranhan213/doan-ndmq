@@ -1,5 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useMovieDetail } from '../../hooks/useMovieDetail';
 import MovieCard from '../../components/MovieCard/MovieCard';
 import { getImageUrl, IMAGE_SIZES, formatDate, formatRuntime, formatCurrency } from '../../utils/constants';
@@ -7,6 +8,7 @@ import { useState } from 'react';
 import { createReview } from '../../api/endpoints';
 
 const MovieDetail: React.FC = () => {
+    const { t } = useTranslation();
     const { id } = useParams<{ id: string }>();
     // const navigate = useNavigate();
     const { movie, credits, similarMovies, recommendations, reviews, loading, error, setReviews } = useMovieDetail(Number(id));
@@ -16,15 +18,15 @@ const MovieDetail: React.FC = () => {
     const [comment, setComment] = useState('');
     const [rating, setRating] = useState<number>(0);
     const [submitting, setSubmitting] = useState(false);
-    
-    
+
+
 
     const handleSubmitReview = async () => {
         if (!comment || rating === 0) return;
 
         try {
             setSubmitting(true);
-            
+
             const newReview = await createReview(Number(id), {
                 comment,
                 rating
@@ -38,7 +40,7 @@ const MovieDetail: React.FC = () => {
 
         } catch (err) {
             console.error(err);
-            alert("Failed to submit review");
+            alert(t('movies.failedSubmitReview'));
         } finally {
             setSubmitting(false);
         }
@@ -56,7 +58,7 @@ const MovieDetail: React.FC = () => {
         return (
             <div className="container mx-auto px-4 py-8">
                 <div className="bg-red-500 text-white p-4 rounded-lg">
-                    {error || 'Movie not found'}
+                    {error || t('movies.movieNotFound')}
                 </div>
             </div>
         );
@@ -128,7 +130,7 @@ const MovieDetail: React.FC = () => {
 
                         {/* Overview */}
                         <div className="mb-6">
-                            <h2 className="text-2xl font-bold text-white mb-2">Synopsis</h2>
+                            <h2 className="text-2xl font-bold text-white mb-2">{t('movies.synopsis')}</h2>
                             <p className="text-gray-300 leading-relaxed">{movie.overview}</p>
                         </div>
 
@@ -137,7 +139,7 @@ const MovieDetail: React.FC = () => {
                             <div className="mb-6 bg-slate-800 p-4 rounded-lg">
                                 {director && (
                                     <div className="mb-3">
-                                        <p className="text-gray-400 text-sm">Director</p>
+                                        <p className="text-gray-400 text-sm">{t('movies.director')}</p>
 
                                         <p className="text-white cursor-pointer font-semibold hover:underline">
                                             {director.name}
@@ -146,7 +148,7 @@ const MovieDetail: React.FC = () => {
                                 )}
                                 {writers && writers.length > 0 && (
                                     <div>
-                                        <p className="text-gray-400 text-sm">Writers</p>
+                                        <p className="text-gray-400 text-sm">{t('movies.writers')}</p>
                                         <p className="text-white font-semibold cursor-pointer hover:underline">{writers.map((w) => w.name).join(', ')}</p>
                                     </div>
                                 )}
@@ -156,24 +158,24 @@ const MovieDetail: React.FC = () => {
                         {/* Additional Info */}
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 bg-imdb-gray p-4 rounded-lg mb-6">
                             <div>
-                                <p className="text-gray-400 text-sm">Status</p>
+                                <p className="text-gray-400 text-sm">{t('movies.status')}</p>
                                 <p className="text-white font-semibold">{movie.status}</p>
                             </div>
                             <div>
-                                <p className="text-gray-400 text-sm">Budget</p>
+                                <p className="text-gray-400 text-sm">{t('movies.budget')}</p>
                                 <p className="text-white font-semibold">
                                     {movie.budget ? formatCurrency(movie.budget) : 'N/A'}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-gray-400 text-sm">Revenue</p>
+                                <p className="text-gray-400 text-sm">{t('movies.revenue')}</p>
                                 <p className="text-white font-semibold">
                                     {movie.revenue ? formatCurrency(movie.revenue) : 'N/A'}
                                 </p>
                             </div>
                             {movie.spoken_languages && movie.spoken_languages.length > 0 && (
                                 <div>
-                                    <p className="text-gray-400 text-sm">Languages</p>
+                                    <p className="text-gray-400 text-sm">{t('movies.languages')}</p>
                                     <p className="text-white font-semibold text-sm">
                                         {movie.spoken_languages.map((lang) => lang.name).join(', ')}
                                     </p>
@@ -181,7 +183,7 @@ const MovieDetail: React.FC = () => {
                             )}
                             {movie.production_companies && movie.production_companies.length > 0 && (
                                 <div className="md:col-span-2">
-                                    <p className="text-gray-400 text-sm">Production</p>
+                                    <p className="text-gray-400 text-sm">{t('movies.production')}</p>
                                     <p className="text-white font-semibold text-sm">
                                         {movie.production_companies.map((company, index) => (
                                             <span key={company.id}>
@@ -203,7 +205,7 @@ const MovieDetail: React.FC = () => {
                         {/* Cast Section */}
                         {credits && credits.cast.length > 0 && (
                             <div className="mb-12">
-                                <h2 className="text-3xl font-bold text-white mb-6">👥 Top Cast</h2>
+                                <h2 className="text-3xl font-bold text-white mb-6">👥 {t('movies.topCast')}</h2>
 
                                 {/* Cast list */}
                                 <div
@@ -249,7 +251,7 @@ const MovieDetail: React.FC = () => {
                                         hover:text-gray-200
                                     "
                                         >
-                                            {showAllCast ? 'Show less ▲' : 'Show all cast ▼'}
+                                            {showAllCast ? `${t('common.showLess')} ▲` : `${t('movies.showAllCast')} ▼`}
                                         </button>
                                     </div>
                                 )}
@@ -258,11 +260,11 @@ const MovieDetail: React.FC = () => {
 
                         {/* User Comment Section */}
                         <div className="mb-12 bg-slate-800 p-6 rounded-lg">
-                            <h2 className="text-2xl font-bold text-white mb-4">📝 Your Review</h2>
+                            <h2 className="text-2xl font-bold text-white mb-4">📝 {t('movies.yourReview')}</h2>
 
                             {/* Rating */}
                             <div className="mb-4">
-                                <p className="text-gray-400 mb-2">Your Rating</p>
+                                <p className="text-gray-400 mb-2">{t('movies.yourRating')}</p>
                                 <div className="flex gap-2 flex-wrap">
                                     {[...Array(10)].map((_, i) => {
                                         const value = i + 1;
@@ -287,7 +289,7 @@ const MovieDetail: React.FC = () => {
                             <textarea
                                 value={comment}
                                 onChange={(e) => setComment(e.target.value)}
-                                placeholder="Write your thoughts about this movie..."
+                                placeholder={t('movies.writeThoughts')}
                                 className="w-full p-3 rounded bg-imdb-gray text-white mb-4"
                                 rows={4}
                             />
@@ -298,75 +300,86 @@ const MovieDetail: React.FC = () => {
                                 disabled={submitting}
                                 className="bg-imdb-yellow text-white px-4 py-2 rounded hover:bg-yellow-500 disabled:opacity-50"
                             >
-                                {submitting ? "Submitting..." : "Submit Review"}
+                                {submitting ? t('movies.submitting') : t('movies.submitReview')}
                             </button>
                         </div>
 
                         {/* Reviews Section */}
-                        {reviews.map((review) => {
-                            const avatarUrl = review.author_details?.avatar_path
-                                ? review.author_details.avatar_path.startsWith('/https')
-                                    ? review.author_details.avatar_path.slice(1)
-                                    : getImageUrl(review.author_details.avatar_path)
-                                : null
+                        <div className="mb-12">
+                            <h2 className="text-3xl font-bold text-white mb-6">💬 {t('movies.reviews')}</h2>
+                            {reviews.length > 0 ? (
+                                <div>
+                                    {reviews.map((review) => {
+                                        const avatarUrl = review.author_details?.avatar_path
+                                            ? review.author_details.avatar_path.startsWith('/https')
+                                                ? review.author_details.avatar_path.slice(1)
+                                                : getImageUrl(review.author_details.avatar_path)
+                                            : null
 
-                            return (
-                                <div
-                                    key={review.id}
-                                    className="relative mb-12 bg-slate-800 p-4 pl-14 rounded-lg"
-                                >
-                                    {/* Avatar */}
-                                    <div className="absolute -top-4 -left-4">
-                                        {avatarUrl ? (
-                                            <img
-                                                src={getImageUrl(avatarUrl)}
-                                                alt={review.author}
-                                                className="w-12 h-12 rounded-full border-2 border-imdb-dark object-cover bg-gray-700"
-                                            />
-                                        ) : (
-                                            <div className="w-12 h-12 rounded-full bg-imdb-gray border-2 border-imdb-dark flex items-center justify-center text-white font-bold">
-                                                {review.author.charAt(0).toUpperCase()}
+                                        return (
+                                            <div
+                                                key={review.id}
+                                                className="relative mb-12 bg-slate-800 p-4 pl-14 rounded-lg"
+                                            >
+                                                {/* Avatar */}
+                                                <div className="absolute -top-4 -left-4">
+                                                    {avatarUrl ? (
+                                                        <img
+                                                            src={getImageUrl(avatarUrl)}
+                                                            alt={review.author}
+                                                            className="w-12 h-12 rounded-full border-2 border-imdb-dark object-cover bg-gray-700"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-12 h-12 rounded-full bg-imdb-gray border-2 border-imdb-dark flex items-center justify-center text-white font-bold">
+                                                            {review.author.charAt(0).toUpperCase()}
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Header */}
+                                                <div className="flex items-start justify-between mb-2">
+                                                    <div>
+                                                        <p className="text-white font-semibold">{review.author}</p>
+                                                        <p className="text-gray-400 text-sm">
+                                                            {new Date(review.created_at).toLocaleDateString()}
+                                                        </p>
+                                                    </div>
+
+                                                    {review.author_details?.rating !== null && review.author_details?.rating !== undefined && (
+                                                        <div className="bg-imdb-yellow text-white px-2 py-1 rounded font-bold text-sm">
+                                                            ⭐ {review.author_details.rating}/10
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Content */}
+                                                <p className="text-gray-300 line-clamp-4">{review.content}</p>
+
+                                                {/* Link */}
+                                                <a
+                                                    href={review.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-imdb-yellow hover:underline text-sm mt-2 inline-block"
+                                                >
+                                                    {t('movies.readFullReview')} →
+                                                </a>
                                             </div>
-                                        )}
-                                    </div>
-
-                                    {/* Header */}
-                                    <div className="flex items-start justify-between mb-2">
-                                        <div>
-                                            <p className="text-white font-semibold">{review.author}</p>
-                                            <p className="text-gray-400 text-sm">
-                                                {new Date(review.created_at).toLocaleDateString()}
-                                            </p>
-                                        </div>
-
-                                        {review.author_details?.rating !== null && review.author_details?.rating !== undefined && (
-                                            <div className="bg-imdb-yellow text-white px-2 py-1 rounded font-bold text-sm">
-                                                ⭐ {review.author_details.rating}/10
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Content */}
-                                    <p className="text-gray-300 line-clamp-4">{review.content}</p>
-
-                                    {/* Link */}
-                                    <a
-                                        href={review.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-imdb-yellow hover:underline text-sm mt-2 inline-block"
-                                    >
-                                        Read full review →
-                                    </a>
+                                        )
+                                    })}
                                 </div>
-                            )
-                        })}
+                            ) : (
+                                <div className="bg-slate-800 rounded-lg p-8 text-center text-slate-400">
+                                    {t('profile.noReviewsYet')}
+                                </div>
+                            )}
+                        </div>
 
 
                         {/* Similar Movies */}
                         {similarMovies && similarMovies.length > 0 && (
                             <div className="mb-12">
-                                <h2 className="text-3xl font-bold text-white mb-6">🎬 Similar Movies</h2>
+                                <h2 className="text-3xl font-bold text-white mb-6">🎬 {t('movies.similarMovies')}</h2>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
                                     {similarMovies.map((movie) => (
                                         <MovieCard key={movie.id} movie={movie} />
@@ -378,7 +391,7 @@ const MovieDetail: React.FC = () => {
                         {/* Recommendations */}
                         {recommendations && recommendations.length > 0 && (
                             <div>
-                                <h2 className="text-3xl font-bold text-white mb-6">⚡ Recommendations</h2>
+                                <h2 className="text-3xl font-bold text-white mb-6">⚡ {t('movies.recommendations')}</h2>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
                                     {recommendations.map((movie) => (
                                         <MovieCard key={movie.id} movie={movie} />

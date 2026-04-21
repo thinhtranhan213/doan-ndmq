@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
 import { getCurrentUserProfile, ProfileResponse } from '../../api/auth';
 import { useMovies } from '../../hooks/useMovies';
@@ -7,6 +8,7 @@ import { Movie } from '../../types/movie.types';
 import Footer from '../../components/Footer/Footer';
 
 const Profile: React.FC = () => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const { isAuthenticated } = useAuthStore();
     const [userProfile, setUserProfile] = useState<ProfileResponse['user'] | null>(null);
@@ -47,13 +49,13 @@ const Profile: React.FC = () => {
     if (loading) {
         return (
             <div className="min-h-screen bg-slate-950 pt-20 flex items-center justify-center">
-                <div className="text-white">Loading profile...</div>
+                <div className="text-white">{t('profile.loadingProfile')}</div>
             </div>
         );
     }
 
     const joinDate = userProfile?.createdAt
-        ? new Date(userProfile.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })
+        ? new Date(userProfile.createdAt).toLocaleDateString('vi-VN', { year: 'numeric', month: 'short' })
         : 'Mar 2026';
 
     const userInitial = userProfile?.firstName?.charAt(0).toUpperCase() || userProfile?.email?.charAt(0).toUpperCase() || 'U';
@@ -74,12 +76,12 @@ const Profile: React.FC = () => {
                         {/* User Info */}
                         <div className="flex-1 pt-4">
                             <h1 className="text-3xl font-bold text-white mb-2">{fullName || userProfile?.email || 'User'}</h1>
-                            <p className="text-slate-400 mb-4">Joined {joinDate}</p>
+                            <p className="text-slate-400 mb-4">{t('profile.joined')} {joinDate}</p>
                             <button
                                 onClick={() => navigate('/edit-profile')}
                                 className="px-6 py-2 border border-slate-500 text-white rounded hover:bg-slate-800 transition-colors"
                             >
-                                Edit Profile
+                                {t('profile.editProfile')}
                             </button>
                         </div>
 
@@ -87,11 +89,11 @@ const Profile: React.FC = () => {
                         <div className="flex gap-8">
                             <div className="text-center">
                                 <div className="text-2xl font-bold text-white">0</div>
-                                <div className="text-slate-400 text-sm">Ratings</div>
+                                <div className="text-slate-400 text-sm">{t('profile.ratings')}</div>
                             </div>
                             <div className="text-center">
                                 <div className="text-2xl font-bold text-white">0</div>
-                                <div className="text-slate-400 text-sm">Watchlist</div>
+                                <div className="text-slate-400 text-sm">{t('profile.watchlist')}</div>
                             </div>
                         </div>
                     </div>
@@ -103,7 +105,7 @@ const Profile: React.FC = () => {
                 {/* Badges Section */}
                 <section className="mb-12">
                     <div className="flex items-center gap-2 mb-6">
-                        <h2 className="text-xl font-bold text-white">Badges</h2>
+                        <h2 className="text-xl font-bold text-white">{t('profile.badges')}</h2>
                         <span className="text-slate-400">&gt;</span>
                     </div>
                     <div className="flex items-center gap-4">
@@ -111,11 +113,11 @@ const Profile: React.FC = () => {
                             <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center mb-2">
                                 <span className="text-2xl font-bold">IMDb</span>
                             </div>
-                            <p className="text-white text-sm">IMDb Member</p>
+                            <p className="text-white text-sm">{t('profile.imdbMember')}</p>
                             <p className="text-slate-400 text-xs">1 day</p>
                         </div>
                         <button className="ml-4 px-6 py-2 border border-slate-500 text-white rounded hover:bg-slate-800 transition-colors text-sm">
-                            EXPLORE BADGES
+                            {t('profile.exploreBadges')}
                         </button>
                     </div>
                 </section>
@@ -124,17 +126,17 @@ const Profile: React.FC = () => {
                 <section className="mb-12">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-2">
-                            <h2 className="text-xl font-bold text-white">Ratings</h2>
+                            <h2 className="text-xl font-bold text-white">{t('profile.ratings')}</h2>
                             <span className="text-slate-400">&gt;</span>
                         </div>
-                        <p className="text-slate-400 text-sm cursor-pointer hover:text-white">Edit</p>
+                        <p className="text-slate-400 text-sm cursor-pointer hover:text-white">{t('profile.edit')}</p>
                     </div>
 
                     <div className="bg-slate-900 rounded-lg p-8 text-center mb-4">
-                        <p className="text-slate-400 mb-4">No ratings yet</p>
-                        <p className="text-slate-500 text-sm mb-6">To share your opinion, choose one of the following movies or TV shows to rate.</p>
+                        <p className="text-slate-400 mb-4">{t('profile.noRatingsYet')}</p>
+                        <p className="text-slate-500 text-sm mb-6">{t('profile.shareOpinion')}</p>
                         <button className="px-6 py-2 border border-imdb-yellow text-imdb-yellow rounded hover:bg-imdb-yellow hover:text-slate-900 transition-colors">
-                            Browse popular movies
+                            {t('profile.browsePopularMovies')}
                         </button>
                     </div>
 
@@ -151,7 +153,7 @@ const Profile: React.FC = () => {
                                         />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center">
-                                            <span className="text-slate-500">No Image</span>
+                                            <span className="text-slate-500">{t('profile.noImage')}</span>
                                         </div>
                                     )}
                                 </div>
@@ -165,14 +167,14 @@ const Profile: React.FC = () => {
                 <section className="mb-12">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-2">
-                            <h2 className="text-xl font-bold text-white">Watchlist</h2>
+                            <h2 className="text-xl font-bold text-white">{t('profile.watchlist')}</h2>
                             <span className="text-slate-400">&gt;</span>
                         </div>
                     </div>
 
                     <div className="bg-slate-900 rounded-lg p-8 text-center mb-4">
-                        <p className="text-slate-400 mb-4">No Watchlist yet</p>
-                        <p className="text-slate-500 text-sm">To track what you want to watch, click the</p>
+                        <p className="text-slate-400 mb-4">{t('profile.noRatingsYet')}</p>
+                        <p className="text-slate-500 text-sm">{t('profile.trackWatchlistMessage')}</p>
                     </div>
 
                     {/* Movie Grid */}
@@ -188,7 +190,7 @@ const Profile: React.FC = () => {
                                         />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center">
-                                            <span className="text-slate-500">No Image</span>
+                                            <span className="text-slate-500">{t('profile.noImage')}</span>
                                         </div>
                                     )}
                                 </div>
@@ -199,7 +201,7 @@ const Profile: React.FC = () => {
 
                     <div className="text-center mt-6">
                         <button className="px-6 py-2 border border-imdb-yellow text-imdb-yellow rounded hover:bg-imdb-yellow hover:text-slate-900 transition-colors">
-                            Browse all upcoming releases
+                            {t('profile.browseAllUpcomingReleases')}
                         </button>
                     </div>
                 </section>
@@ -214,9 +216,9 @@ const Profile: React.FC = () => {
                     </div>
 
                     <div className="bg-slate-900 rounded-lg p-12 text-center">
-                        <p className="text-slate-400 mb-6 text-lg">No lists yet</p>
+                        <p className="text-slate-400 mb-6 text-lg">{t('profile.noListsYet')}</p>
                         <button className="px-6 py-2 border border-imdb-yellow text-imdb-yellow rounded hover:bg-imdb-yellow hover:text-slate-900 transition-colors">
-                            Create a list
+                            {t('profile.createList')}
                         </button>
                     </div>
                 </section>
@@ -229,22 +231,22 @@ const Profile: React.FC = () => {
                     </div>
 
                     <div className="bg-slate-900 rounded-lg p-12 text-center">
-                        <p className="text-slate-400">No reviews yet</p>
+                        <p className="text-slate-400">{t('profile.noReviewsYet')}</p>
                     </div>
                 </section>
 
                 {/* Favorite People Section */}
                 <section className="mb-12">
                     <div className="flex items-center gap-2 mb-6">
-                        <h2 className="text-xl font-bold text-white">Favorite people</h2>
+                        <h2 className="text-xl font-bold text-white">{t('profile.favoritePeople')}</h2>
                         <span className="text-slate-400">&gt;</span>
                     </div>
 
                     <div className="bg-slate-900 rounded-lg p-12 text-center">
-                        <p className="text-slate-400 mb-6">No favorite people yet</p>
-                        <p className="text-slate-500 text-sm mb-6">Add to your favorite people to stay connected more easily.</p>
+                        <p className="text-slate-400 mb-6">{t('profile.noFavoritePeopleYet')}</p>
+                        <p className="text-slate-500 text-sm mb-6">{t('profile.addToFavoritePeople')}</p>
                         <button className="px-6 py-2 border border-imdb-yellow text-imdb-yellow rounded hover:bg-imdb-yellow hover:text-slate-900 transition-colors">
-                            Browse most popular celebs
+                            {t('profile.browseMostPopularCelebs')}
                         </button>
                     </div>
                 </section>
@@ -252,11 +254,11 @@ const Profile: React.FC = () => {
                 {/* Recently Viewed Section */}
                 <section className="mb-12">
                     <div className="flex items-center gap-2 mb-6">
-                        <h2 className="text-xl font-bold text-white">Recently viewed</h2>
+                        <h2 className="text-xl font-bold text-white">{t('profile.recentlyViewed')}</h2>
                     </div>
 
                     <div className="bg-slate-900 rounded-lg p-12 text-center">
-                        <p className="text-slate-400">You have no recently viewed pages</p>
+                        <p className="text-slate-400">{t('profile.noRecentlyViewedPages')}</p>
                     </div>
                 </section>
             </div>

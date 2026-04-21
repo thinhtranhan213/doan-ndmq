@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { changePassword } from '../../api/auth';
 
 interface PasswordChangeModalProps {
@@ -14,6 +15,7 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
     onSuccess,
     hasPassword
 }) => {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         oldPassword: '',
         newPassword: '',
@@ -43,42 +45,42 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
         if (!hasPassword && !formData.oldPassword) {
             // If user has no password (OAuth2), oldPassword can be empty
         } else if (hasPassword && !formData.oldPassword) {
-            setError('Current password is required');
+            setError(t('auth.currentPasswordRequired'));
             return;
         }
 
         if (!formData.newPassword) {
-            setError('New password is required');
+            setError(t('auth.passwordRequired'));
             return;
         }
 
         if (formData.newPassword.length < 8) {
-            setError('Password must be at least 8 characters');
+            setError(t('auth.passwordMinLength'));
             return;
         }
 
         if (!/(?=.*[a-z])/.test(formData.newPassword)) {
-            setError('Password must contain at least one lowercase letter');
+            setError(t('auth.passwordLowercase'));
             return;
         }
 
         if (!/(?=.*[A-Z])/.test(formData.newPassword)) {
-            setError('Password must contain at least one uppercase letter');
+            setError(t('auth.passwordUppercase'));
             return;
         }
 
         if (!/(?=.*\d)/.test(formData.newPassword)) {
-            setError('Password must contain at least one number');
+            setError(t('auth.passwordNumber'));
             return;
         }
 
         if (formData.newPassword !== formData.confirmPassword) {
-            setError('Passwords do not match');
+            setError(t('auth.passwordNotMatch'));
             return;
         }
 
         if (hasPassword && formData.oldPassword === formData.newPassword) {
-            setError('New password must be different from old password');
+            setError(t('auth.newPasswordDifferent'));
             return;
         }
 
@@ -98,7 +100,7 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
             onSuccess();
             onClose();
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Failed to change password');
+            setError(err.response?.data?.message || t('auth.passwordChangeFailed'));
         } finally {
             setLoading(false);
         }
@@ -110,7 +112,7 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-slate-900 border border-slate-700 rounded-lg p-8 w-full max-w-md">
                 <h2 className="text-2xl font-bold text-white mb-6">
-                    {hasPassword ? 'Change Password' : 'Set Password'}
+                    {hasPassword ? t('auth.changePassword') : t('auth.setPassword')}
                 </h2>
 
                 {error && (
@@ -124,7 +126,7 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
                     {hasPassword && (
                         <div>
                             <label className="block text-sm font-medium text-slate-400 mb-2">
-                                Current Password
+                                {t('auth.currentPassword')}
                             </label>
                             <div className="relative">
                                 <input
@@ -133,7 +135,7 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
                                     value={formData.oldPassword}
                                     onChange={handleInputChange}
                                     className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded text-white focus:outline-none focus:border-imdb-yellow placeholder-slate-500"
-                                    placeholder="Enter current password"
+                                    placeholder={t('auth.enterCurrentPassword')}
                                     disabled={loading}
                                 />
                                 <button
@@ -150,7 +152,7 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
                     {/* New Password */}
                     <div>
                         <label className="block text-sm font-medium text-slate-400 mb-2">
-                            {hasPassword ? 'New Password' : 'Password'}
+                            {hasPassword ? t('auth.newPassword') : t('auth.password')}
                         </label>
                         <div className="relative">
                             <input
@@ -159,7 +161,7 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
                                 value={formData.newPassword}
                                 onChange={handleInputChange}
                                 className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded text-white focus:outline-none focus:border-imdb-yellow placeholder-slate-500"
-                                placeholder="Enter new password"
+                                placeholder={t('auth.enterNewPassword')}
                                 disabled={loading}
                             />
                             <button
@@ -171,14 +173,14 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
                             </button>
                         </div>
                         <p className="text-xs text-slate-400 mt-2">
-                            Password must contain: 8+ characters, uppercase letter, lowercase letter, number
+                            {t('auth.passwordRequirements')}
                         </p>
                     </div>
 
                     {/* Confirm Password */}
                     <div>
                         <label className="block text-sm font-medium text-slate-400 mb-2">
-                            Confirm Password
+                            {t('auth.confirmPassword')}
                         </label>
                         <div className="relative">
                             <input
@@ -187,7 +189,7 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
                                 value={formData.confirmPassword}
                                 onChange={handleInputChange}
                                 className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded text-white focus:outline-none focus:border-imdb-yellow placeholder-slate-500"
-                                placeholder="Confirm new password"
+                                placeholder={t('auth.confirmNewPassword')}
                                 disabled={loading}
                             />
                             <button
@@ -208,14 +210,14 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
                             disabled={loading}
                             className="flex-1 px-4 py-2 border border-slate-500 text-white rounded hover:bg-slate-800 transition-colors disabled:opacity-50"
                         >
-                            Cancel
+                            {t('common.cancel')}
                         </button>
                         <button
                             type="submit"
                             disabled={loading}
                             className="flex-1 px-4 py-2 bg-imdb-yellow text-slate-900 font-semibold rounded hover:bg-yellow-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {loading ? 'Saving...' : hasPassword ? 'Update Password' : 'Set Password'}
+                            {loading ? t('common.saving') : hasPassword ? t('auth.updatePassword') : t('auth.setPassword')}
                         </button>
                     </div>
                 </form>

@@ -1,7 +1,9 @@
 
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 const Footer: React.FC = () => {
+    const { t } = useTranslation();
     const currentYear = new Date().getFullYear();
 
     return (
@@ -14,30 +16,30 @@ const Footer: React.FC = () => {
                             <div className="bg-imdb-yellow text-white font-bold px-2 py-1 rounded">
                                 IMDb
                             </div>
-                            <span className="text-white font-semibold">Movie Review</span>
+                            <span className="text-white font-semibold">{t('common.movieReview')}</span>
                         </div>
                         <p className="text-gray-400 text-sm">
-                            Discover and explore the world of movies. Find ratings, reviews, and details about your favorite films.
+                            {t('common.discoverExplore')}
                         </p>
                     </div>
 
                     {/* Quick Links */}
                     <div>
-                        <h3 className="text-white font-semibold mb-4">Quick Links</h3>
+                        <h3 className="text-white font-semibold mb-4">{t('common.quickLinks')}</h3>
                         <ul className="space-y-2">
                             <li>
                                 <a href="/" className="text-gray-400 hover:text-imdb-yellow transition">
-                                    Home
+                                    {t('common.home')}
                                 </a>
                             </li>
                             <li>
                                 <a href="/search" className="text-gray-400 hover:text-imdb-yellow transition">
-                                    Search Movies
+                                    {t('movies.searchMovies')}
                                 </a>
                             </li>
                             <li>
                                 <a href="/" className="text-gray-400 hover:text-imdb-yellow transition">
-                                    Popular Movies
+                                    {t('movies.popualrMovies') || 'Popular Movies'}
                                 </a>
                             </li>
                         </ul>
@@ -45,7 +47,7 @@ const Footer: React.FC = () => {
 
                     {/* Contact Section */}
                     <div>
-                        <h3 className="text-white font-semibold mb-4">Contact & Info</h3>
+                        <h3 className="text-white font-semibold mb-4">{t('common.contact')} & {t('common.aboutUs')}</h3>
                         <p className="text-gray-400 text-sm mb-2">
                             Powered by{' '}
                             <a
@@ -58,7 +60,7 @@ const Footer: React.FC = () => {
                             </a>
                         </p>
                         <p className="text-gray-400 text-sm">
-                            © {currentYear} Movie Review App. All rights reserved.
+                            © {currentYear} Movie Review App. {t('common.copyright')}
                         </p>
                     </div>
                 </div>
@@ -71,13 +73,13 @@ const Footer: React.FC = () => {
                         </p>
                         <div className="flex space-x-6 mt-4 md:mt-0">
                             <a href="/" className="text-gray-400 hover:text-imdb-yellow transition text-sm">
-                                Privacy Policy
+                                {t('common.privacyPolicy')}
                             </a>
                             <a href="/" className="text-gray-400 hover:text-imdb-yellow transition text-sm">
                                 Terms of Service
                             </a>
                             <a href="/" className="text-gray-400 hover:text-imdb-yellow transition text-sm">
-                                Contact Us
+                                {t('common.contact')} Us
                             </a>
                         </div>
                     </div>

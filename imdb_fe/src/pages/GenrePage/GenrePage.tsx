@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { getMoviesByGenreFromBackend } from '../../api/endpoints';
 import { Movie } from '../../types/movie.types';
 import MovieCard from '../../components/MovieCard/MovieCard';
@@ -11,21 +12,22 @@ interface Genre {
     id: number;
     name: string;
     emoji: string;
-    description: string;
+    descriptionKey: string;
 }
 
 const GENRES: Genre[] = [
-    { id: 28, name: 'Action', emoji: '🎬', description: 'These action movies are thrilling and visually stunning, featuring breathtaking action sequences' },
-    { id: 35, name: 'Comedy', emoji: '😂', description: 'Comedy films bring laughter and joy to the audience' },
-    { id: 18, name: 'Drama', emoji: '🎭', description: 'Dramatic, emotional, and profound stories about life' },
-    { id: 27, name: 'Horror', emoji: '👻', description: 'These terrifying horror movies will leave you breathless' },
-    { id: 878, name: 'Science Fiction', emoji: '🚀', description: 'Explore the future, technology, and fascinating fantasy worlds' },
-    { id: 53, name: 'Thriller', emoji: '🔪', description: 'These thrilling and suspenseful films will keep you glued to the screen' },
-    { id: 10749, name: 'Romance', emoji: '💕', description: 'Romantic love stories that touch the heart' },
-    { id: 16, name: 'Animation', emoji: '🎨', description: 'Colorful and creative animated films for all ages' },
+    { id: 28, name: 'Action', emoji: '🎬', descriptionKey: 'genres.actionDescription' },
+    { id: 35, name: 'Comedy', emoji: '😂', descriptionKey: 'genres.comedyDescription' },
+    { id: 18, name: 'Drama', emoji: '🎭', descriptionKey: 'genres.dramaDescription' },
+    { id: 27, name: 'Horror', emoji: '👻', descriptionKey: 'genres.horrorDescription' },
+    { id: 878, name: 'Science Fiction', emoji: '🚀', descriptionKey: 'genres.scifiDescription' },
+    { id: 53, name: 'Thriller', emoji: '🔪', descriptionKey: 'genres.thrillerDescription' },
+    { id: 10749, name: 'Romance', emoji: '💕', descriptionKey: 'genres.romanceDescription' },
+    { id: 16, name: 'Animation', emoji: '🎨', descriptionKey: 'genres.animationDescription' },
 ];
 
 const GenrePage: React.FC = () => {
+    const { t } = useTranslation();
     const { genreId } = useParams<{ genreId: string }>();
     const [movies, setMovies] = useState<Movie[]>([]);
     const [loading, setLoading] = useState(true);
@@ -39,7 +41,7 @@ const GenrePage: React.FC = () => {
     useEffect(() => {
         // Cập nhật document title
         if (genre) {
-            document.title = `${genre.emoji} ${genre.name} Movies - IMDb Movie Review`;
+            document.title = `${genre.emoji} ${t(`genres.${genre.name}`)} Movies - IMDb Movie Review`;
         } else {
             document.title = 'Genre Not Found - IMDb Movie Review';
         }
@@ -47,7 +49,7 @@ const GenrePage: React.FC = () => {
         return () => {
             document.title = 'IMDb Movie Review';
         };
-    }, [genre]);
+    }, [genre, t]);
 
     useEffect(() => {
         if (genre) {
@@ -64,7 +66,7 @@ const GenrePage: React.FC = () => {
             setTotalPages(Math.min(response.total_pages, 500)); // TMDb giới hạn 500 trang
         } catch (err) {
             console.error('Error fetching movies:', err);
-            setError('Không thể tải danh sách phim. Vui lòng thử lại sau.');
+            setError(t('movies.errorLoading'));
         } finally {
             setLoading(false);
         }
@@ -83,16 +85,16 @@ const GenrePage: React.FC = () => {
                     <div className="text-center py-16">
                         <div className="text-6xl mb-4">😕</div>
                         <h1 className="text-3xl font-bold text-white mb-4">
-                            Genre not found
+                            {t('movies.genreNotFound')}
                         </h1>
                         <p className="text-gray-400 mb-8">
-                            The type of genre you're looking for doesn't exist.
+                            {t('movies.genreNotFoundDescription')}
                         </p>
                         <Link
                             to="/"
                             className="inline-block bg-imdb-yellow text-black font-semibold px-8 py-3 rounded hover:bg-yellow-500 transition"
                         >
-                            Back to home
+                            {t('common.backToHome')}
                         </Link>
                     </div>
                 </div>
@@ -109,23 +111,23 @@ const GenrePage: React.FC = () => {
                 <div className="mb-8">
                     <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
                         <span className="mr-3">{genre.emoji}</span>
-                        {genre.name} Movies
+                        {t(`genres.${genre.name}`)} {t('movies.moviesLabel')}
                     </h1>
                     <p className="text-gray-400 text-lg max-w-3xl">
-                        {genre.description}
+                        {t(genre.descriptionKey)}
                     </p>
                 </div>
 
                 {/* Error State */}
                 {error && (
                     <div className="bg-red-900/30 border border-red-700 text-red-400 px-6 py-4 rounded-lg mb-8">
-                        <p className="font-semibold mb-2">Đã xảy ra lỗi</p>
+                        <p className="font-semibold mb-2">{t('movies.anErrorOccurred')}</p>
                         <p>{error}</p>
                         <button
                             onClick={() => fetchMovies(currentPage)}
                             className="mt-4 bg-red-700 hover:bg-red-600 text-white px-4 py-2 rounded transition"
                         >
-                            Thử lại
+                            {t('common.retry')}
                         </button>
                     </div>
                 )}
@@ -170,10 +172,10 @@ const GenrePage: React.FC = () => {
                     <div className="text-center py-16">
                         <div className="text-6xl mb-4">{genre.emoji}</div>
                         <h2 className="text-2xl font-bold text-white mb-4">
-                            Không tìm thấy phim nào
+                            {t('movies.noMoviesFound')}
                         </h2>
                         <p className="text-gray-400">
-                            Hiện tại không có phim nào trong thể loại này.
+                            {t('movies.noMoviesInGenre')}
                         </p>
                     </div>
                 )}
