@@ -7,11 +7,15 @@ import com.imdb.dto.request.UpdateProfileRequest;
 import com.imdb.dto.response.LoginResponse;
 import com.imdb.dto.response.ProfileResponse;
 import com.imdb.dto.response.MessageResponse;
+import com.imdb.dto.response.ReviewItem;
 import com.imdb.entity.User;
 import com.imdb.repository.UserRepository;
+import com.imdb.service.IReviewService;
 import com.imdb.service.IUserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
@@ -27,33 +31,14 @@ public class UserController {
     private final IUserService userService;
     private final JwtUtils jwtUtils;
     private final UserRepository userRepository;
+    private final IReviewService reviewService;
 
     @GetMapping("/me")
-    public ResponseEntity<?> currentUser(Authentication authentication) {
-        if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails) {
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-
-            User user = userRepository.findByEmail(userDetails.getEmail())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-
-            List<String> roles = userDetails.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .collect(Collectors.toList());
-
-            // Check if user has a password (password is not null and not empty)
-            boolean hasPassword = user.getPassword() != null && !user.getPassword().isEmpty();
-
-            ProfileResponse.UserProfileInfo userInfo = new ProfileResponse.UserProfileInfo(
-                    userDetails.getEmail(),
-                    user.getFirstName(),
-                    user.getLastName(),
-                    user.getCreatedAt(),
-                    roles,
-                    hasPassword);
-
-            return ResponseEntity.ok(new ProfileResponse(userInfo));
+    public ResponseEntity<ProfileResponse> currentUser(Authentication authentication) {
+        if (authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
+            return ResponseEntity.ok(userService.getProfile(userDetails));
         }
-        return ResponseEntity.badRequest().body("User not found or not authenticated");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @PutMapping("/change-password")
@@ -80,4 +65,12 @@ public class UserController {
 
         return ResponseEntity.ok(new MessageResponse("Profile updated successfully"));
     }
+
+    @GetMapping("/reviews/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<List<ReviewItem>> getMyReviews() {
+        return ResponseEntity.ok(reviewService.getReviewsByUser());
+    }
+
+
 }

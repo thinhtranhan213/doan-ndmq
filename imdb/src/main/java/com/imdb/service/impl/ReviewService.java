@@ -148,6 +148,21 @@ public class ReviewService implements IReviewService {
         return mapToTmdbFormatSafe(saved);
     }
 
+    @Override
+    public List<ReviewItem> getReviewsByUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+
+        Long userId = userDetails.getUser().getId();
+
+        List<Review> reviews = reviewRepository
+                .findByUserIdOrderByCreatedAtDesc(userId);
+
+        return reviews.stream()
+                .map(this::mapToTmdbFormatSafe) // reuse luôn
+                .toList();
+    }
+
     // ======================================================
     // 🔄 SAFE MAPPING DB → TMDB FORMAT
     // ======================================================
