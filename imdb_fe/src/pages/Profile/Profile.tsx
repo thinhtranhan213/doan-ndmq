@@ -12,6 +12,8 @@ const Profile: React.FC = () => {
     const navigate = useNavigate();
     const { isAuthenticated } = useAuthStore();
     const [userProfile, setUserProfile] = useState<ProfileResponse['user'] | null>(null);
+        const [stats, setStats] = useState<ProfileResponse['stats'] | null>(null);    
+
     const [loading, setLoading] = useState(true);
     const { movies } = useMovies();
     const [watchlistMovies, setWatchlistMovies] = useState<Movie[]>([]);
@@ -28,6 +30,7 @@ const Profile: React.FC = () => {
                 setLoading(true);
                 const profile = await getCurrentUserProfile();
                 setUserProfile(profile.user);
+                setStats(profile.stats)
             } catch (err) {
                 console.error('Failed to load user profile', err);
             } finally {
@@ -88,11 +91,11 @@ const Profile: React.FC = () => {
                         {/* Right Side Stats */}
                         <div className="flex gap-8">
                             <div className="text-center">
-                                <div className="text-2xl font-bold text-white">0</div>
+                                <div className="text-2xl font-bold text-white">{stats?.totalReviews ?? 0}</div>
                                 <div className="text-slate-400 text-sm">{t('profile.ratings')}</div>
                             </div>
                             <div className="text-center">
-                                <div className="text-2xl font-bold text-white">0</div>
+                                <div className="text-2xl font-bold text-white">{stats?.totalPlaylists ?? 0}</div>
                                 <div className="text-slate-400 text-sm">{t('profile.watchlist')}</div>
                             </div>
                         </div>
