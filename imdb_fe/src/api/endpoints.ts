@@ -165,18 +165,23 @@ export const searchMoviesFromBackend = async (query: string, page: number = 1): 
     return response.data;
 };
 
-// Get movie reviews from Backend (merges TMDB + DB reviews)
-export const getMovieReviews = async (movieId: number, page: number = 1): Promise<ApiResponse<Review>> => {
+// ======================================
+// Backend API Endpoints (Comment & Rate)
+// Lấy review của phim (comment và rate từ phía DB và TMDB)
+// Đăng bài review mới và ghi vào DB
+// ======================================
+export const getMovieReviews = async (
+    movieId: number,
+    page: number = 1
+): Promise<ApiResponse<Review>> => {
+
     const response = await backendApi.get(`/public/movies/${movieId}/reviews`, {
-        params: { page },
+        params: { page }
     });
+
     return response.data;
 };
 
-// ======================================
-// Backend API Endpoints (Comment & Rate)
-// Đăng bài review mới và ghi vào DB
-// ======================================
 export const createReview = async (
     movieId: number,
     data: { comment: string; rating: number }
@@ -189,6 +194,11 @@ export const createReview = async (
     return response.data;
 };
 
+export const getMyReviews = async () => {
+    const res = await backendApi.get('/reviews/me');
+    return res.data;
+};
+
 // ======================================
 // TMDB API Endpoints (Actor & Company Details)
 // Lấy thông tin chi tiết của Diễn viên & Hãng phim sản xuất từ TMDB
@@ -199,7 +209,15 @@ export const createReview = async (
 // Backend API Endpoints (Playlist)
 // Tạo playlist riêng của bản thân bằng nút [Add to playlist] ở trang MovieDetail
 // ======================================
+export const createPlaylist = (name: string) =>
+    backendApi.post('/playlists', { name });
 
+export const toggleMovieInPlaylist = (playlistId: number, movieId: number) =>
+    backendApi.post(`/playlists/${playlistId}/toggle`, null, {
+        params: { movieId }
+    });
 
-
-
+export const getPlaylists = (movieId: number) =>
+    backendApi.get('/playlists', {
+        params: { movieId }
+    });

@@ -187,6 +187,10 @@ export interface ProfileResponse {
         roles: string[];
         hasPassword?: boolean;
         provider?: string;
+    }
+    stats: {
+        totalReviews : number;
+        totalPlaylists: number;
     };
 }
 

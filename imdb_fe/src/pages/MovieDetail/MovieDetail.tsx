@@ -6,20 +6,22 @@ import MovieCard from '../../components/MovieCard/MovieCard';
 import { getImageUrl, IMAGE_SIZES, formatDate, formatRuntime, formatCurrency } from '../../utils/constants';
 import { useState } from 'react';
 import { createReview } from '../../api/endpoints';
+import PlaylistModal from './PlaylistModal';
+
 
 const MovieDetail: React.FC = () => {
     const { t } = useTranslation();
     const { id } = useParams<{ id: string }>();
-    // const navigate = useNavigate();
     const { movie, credits, similarMovies, recommendations, reviews, loading, error, setReviews } = useMovieDetail(Number(id));
     const [showAllCast, setShowAllCast] = useState(false);
-    // const [showAllReviews, setShowAllReviews] = useState(false);
 
     const [comment, setComment] = useState('');
     const [rating, setRating] = useState<number>(0);
     const [submitting, setSubmitting] = useState(false);
+    const [hoverRating, setHoverRating] = useState<number>(0);
 
 
+    const [showModal, setShowModal] = useState(false);
 
     const handleSubmitReview = async () => {
         if (!comment || rating === 0) return;
@@ -40,7 +42,7 @@ const MovieDetail: React.FC = () => {
 
         } catch (err) {
             console.error(err);
-            alert(t('movies.failedSubmitReview'));
+            alert("Failed to submit review");
         } finally {
             setSubmitting(false);
         }
@@ -69,6 +71,7 @@ const MovieDetail: React.FC = () => {
     const writers = credits?.crew.filter((c) => c.job === 'Writer').slice(0, 3);
 
     return (
+        <>
         <div className="min-h-screen bg-imdb-dark">
             {/* Backdrop Banner */}
             <div
@@ -80,14 +83,6 @@ const MovieDetail: React.FC = () => {
                     )})`,
                 }}
             >
-                {/* <div className="container mx-auto px-4 h-full flex items-end pb-8">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="absolute top-4 left-4 bg-black bg-opacity-50 text-white px-4 py-2 rounded-lg hover:bg-opacity-70 transition"
-                    >
-                        ← Back
-                    </button>
-                </div> */}
             </div>
 
             {/* Movie Details */}
@@ -127,6 +122,13 @@ const MovieDetail: React.FC = () => {
                                 </span>
                             ))}
                         </div>
+                        
+                        <button
+                                onClick={() => setShowModal(true)}
+                                className="bg-gray-700 px-4 py-2 rounded text-white hover:bg-gray-600"
+                            >
+                                ➕ Thêm vào danh sách
+                            </button>
 
                         {/* Overview */}
                         <div className="mb-6">
@@ -259,50 +261,72 @@ const MovieDetail: React.FC = () => {
                         )}
 
                         {/* User Comment Section */}
-                        <div className="mb-12 bg-slate-800 p-6 rounded-lg">
-                            <h2 className="text-2xl font-bold text-white mb-4">📝 {t('movies.yourReview')}</h2>
+                            <div className="mb-12 bg-slate-800 p-6 rounded-lg">
+                                <h2 className="text-2xl font-bold text-white mb-4">📝 Ý kiến của bạn</h2>
 
-                            {/* Rating */}
-                            <div className="mb-4">
-                                <p className="text-gray-400 mb-2">{t('movies.yourRating')}</p>
-                                <div className="flex gap-2 flex-wrap">
-                                    {[...Array(10)].map((_, i) => {
-                                        const value = i + 1;
-                                        return (
-                                            <button
-                                                key={value}
-                                                onClick={() => setRating(value)}
-                                                className={`px-3 py-1 rounded 
-                            ${rating >= value
-                                                        ? 'bg-imdb-yellow text-white'
-                                                        : 'bg-imdb-gray text-gray-300'
-                                                    }`}
-                                            >
-                                                {value}
-                                            </button>
-                                        );
-                                    })}
+                                {/* Rating */}
+                                <div className="mb-4">
+                                    <p className="text-gray-400 mb-2">Chấm điểm cho phim</p>
+                                    <div className="flex gap-2 flex-wrap">
+                                        {[...Array(10)].map((_, i) => {
+                                            const value = i + 1;
+
+                                            // 🔥 hover ưu tiên, nếu không thì dùng rating
+                                            const activeValue = hoverRating || rating;
+
+                                            const isActive = value <= activeValue;
+
+                                            return (
+                                                <button
+                                                    key={value}
+                                                    onClick={() => setRating(value)}
+                                                    onMouseEnter={() => setHoverRating(value)}
+                                                    onMouseLeave={() => setHoverRating(0)}
+                                                    className={`
+                                                    px-3 py-1 rounded font-semibold
+                                                    transition-all duration-200
+                                                    cursor-pointer border
+                                                    ${isActive
+                                                            ? 'bg-yellow-400 text-black border-yellow-400 shadow-md scale-105'
+                                                            : 'bg-gray-700 text-gray-400 border-gray-600'
+                                                        }
+                                                `}
+                                                >
+                                                    {value}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
+
+                                {/* Comment Input */}
+                                <textarea
+                                    value={comment}
+                                    onChange={(e) => setComment(e.target.value)}
+                                    placeholder="Cảm nghĩ của bạn về bộ phim..."
+                                    className="w-full p-3 rounded bg-imdb-gray text-white mb-4"
+                                    rows={4}
+                                />
+
+                                {/* Submit */}
+                                <button
+                                    onClick={handleSubmitReview}
+                                    disabled={submitting}
+                                    className="
+                                    bg-imdb-yellow text-gray-400 font-bold
+                                    px-5 py-2 rounded
+                                    shadow-md
+                                    transition-all duration-200
+                                    cursor-pointer
+                                    hover:bg-yellow-400 hover:shadow-lg hover:scale-105
+                                    hover:text-black
+                                    active:scale-95
+                                    disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
+                                "
+                                >
+                                    {submitting ? "Đang gửi..." : "Gửi"}
+                                </button>
                             </div>
-
-                            {/* Comment Input */}
-                            <textarea
-                                value={comment}
-                                onChange={(e) => setComment(e.target.value)}
-                                placeholder={t('movies.writeThoughts')}
-                                className="w-full p-3 rounded bg-imdb-gray text-white mb-4"
-                                rows={4}
-                            />
-
-                            {/* Submit */}
-                            <button
-                                onClick={handleSubmitReview}
-                                disabled={submitting}
-                                className="bg-imdb-yellow text-white px-4 py-2 rounded hover:bg-yellow-500 disabled:opacity-50"
-                            >
-                                {submitting ? t('movies.submitting') : t('movies.submitReview')}
-                            </button>
-                        </div>
 
                         {/* Reviews Section */}
                         <div className="mb-12">
@@ -403,6 +427,13 @@ const MovieDetail: React.FC = () => {
                 </div>
             </div>
         </div>
+        {showModal && (
+            <PlaylistModal
+                movieId={Number(id)}
+                onClose={() => setShowModal(false)}
+            />
+        )}
+        </>
     );
 };
 
