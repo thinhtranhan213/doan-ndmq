@@ -2,6 +2,7 @@ package com.imdb.controller;
 
 import com.imdb.dto.request.CreateReviewRequest;
 import com.imdb.dto.response.MovieApiResponse;
+import com.imdb.dto.response.MovieDetailResponse;
 import com.imdb.dto.response.ReviewItem;
 import com.imdb.dto.response.ReviewResponse;
 import com.imdb.service.IMovieService;
@@ -93,6 +94,11 @@ public class PublicMovieController {
             @RequestParam(defaultValue = "1") Integer page
     ) {
         return ResponseEntity.ok(reviewService.getMovieReviews(id, page));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<MovieDetailResponse> getMovieDetail(@PathVariable Long id) {
+        return ResponseEntity.ok(movieService.getMovieDetail(id));
     }
 
 

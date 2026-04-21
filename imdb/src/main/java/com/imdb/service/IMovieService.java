@@ -1,6 +1,7 @@
 package com.imdb.service;
 
 import com.imdb.dto.response.MovieApiResponse;
+import com.imdb.dto.response.MovieDetailResponse;
 
 public interface IMovieService {
     /**
@@ -44,4 +45,6 @@ public interface IMovieService {
      * @return MovieApiResponse containing search results
      */
     MovieApiResponse searchMovies(String query, Integer page);
+
+    MovieDetailResponse getMovieDetail(Long movieId);
 }

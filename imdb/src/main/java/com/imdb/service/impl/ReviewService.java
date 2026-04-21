@@ -2,17 +2,18 @@ package com.imdb.service.impl;
 
 import com.imdb.config.user.CustomUserDetails;
 import com.imdb.dto.request.CreateReviewRequest;
-import com.imdb.dto.response.AuthorDetails;
-import com.imdb.dto.response.MovieApiResponse;
-import com.imdb.dto.response.ReviewItem;
-import com.imdb.dto.response.ReviewResponse;
+import com.imdb.dto.response.*;
 import com.imdb.entity.Review;
 import com.imdb.entity.User;
 import com.imdb.repository.ReviewRepository;
+import com.imdb.service.IMovieService;
 import com.imdb.service.IReviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -38,6 +40,7 @@ public class ReviewService implements IReviewService {
 
     private final RestTemplate restTemplate;
     private final ReviewRepository reviewRepository;
+    private final IMovieService movieService;
 
     @Value("${tmdb.api-key}")
     private String tmdbApiKey;
@@ -149,19 +152,41 @@ public class ReviewService implements IReviewService {
     }
 
     @Override
-    public List<ReviewItem> getReviewsByUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
-
-        Long userId = userDetails.getUser().getId();
-
-        List<Review> reviews = reviewRepository
-                .findByUserIdOrderByCreatedAtDesc(userId);
-
-        return reviews.stream()
-                .map(this::mapToTmdbFormatSafe) // reuse luôn
-                .toList();
+    public List<ReviewResponse> getMyRecentReviews(User user, int limit) {
+//        Pageable pageable = PageRequest.of(0, limit, Sort.by("createdAt").descending());
+//
+//        List<Review> reviews = reviewRepository.findByUser(user, pageable);
+//
+//        if (reviews.isEmpty()) return List.of();
+//
+//        List<Long> movieIds = reviews.stream()
+//                .map(Review::getMovieId)
+//                .distinct()
+//                .toList();
+//
+//        Map<Long, MovieResult> movieMap = movieIds.stream()
+//                .collect(Collectors.toMap(
+//                        id -> id,
+//                        movieService::getMovieDetail
+//                ));
+//
+//        return reviews.stream().map(review -> {
+//            MovieResult movie = movieMap.get(review.getMovieId());
+//
+//            return ReviewResponse.builder()
+//                    .id(review.getId())
+//                    .movieId(review.getMovieId())
+//                    .movieTitle(movie != null ? movie.getTitle() : "Unknown")
+//                    .posterPath(movie != null ? movie.getPoster_path() : null)
+//                    .rating(review.getRating())
+//                    .content(review.getContent())
+//                    .preview(buildPreview(review.getContent()))
+//                    .createdAt(review.getCreatedAt())
+//                    .build();
+//        }).toList();
+        return new ArrayList<>();
     }
+
 
     // ======================================================
     // 🔄 SAFE MAPPING DB → TMDB FORMAT

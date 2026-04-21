@@ -4,10 +4,7 @@ import com.imdb.config.jwt.JwtUtils;
 import com.imdb.config.user.CustomUserDetails;
 import com.imdb.dto.request.ChangePasswordRequest;
 import com.imdb.dto.request.UpdateProfileRequest;
-import com.imdb.dto.response.LoginResponse;
-import com.imdb.dto.response.ProfileResponse;
-import com.imdb.dto.response.MessageResponse;
-import com.imdb.dto.response.ReviewItem;
+import com.imdb.dto.response.*;
 import com.imdb.entity.User;
 import com.imdb.repository.UserRepository;
 import com.imdb.service.IReviewService;
@@ -21,6 +18,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -66,10 +64,16 @@ public class UserController {
         return ResponseEntity.ok(new MessageResponse("Profile updated successfully"));
     }
 
-    @GetMapping("/reviews/me")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ReviewItem>> getMyReviews() {
-        return ResponseEntity.ok(reviewService.getReviewsByUser());
+    @GetMapping("/me/reviews")
+    public ResponseEntity<?> getMyReviews(
+            @RequestParam(defaultValue = "3") int limit,
+            Authentication authentication
+    ) {
+        User user = (User) authentication.getPrincipal();
+
+        List<ReviewResponse> reviews = reviewService.getMyRecentReviews(user);
+
+        return ResponseEntity.ok(Map.of("reviews", reviews));
     }
 
 

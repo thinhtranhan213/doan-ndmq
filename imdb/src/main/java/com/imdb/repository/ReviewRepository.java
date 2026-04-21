@@ -1,6 +1,8 @@
 package com.imdb.repository;
 
 import com.imdb.entity.Review;
+import com.imdb.entity.User;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -18,5 +20,5 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     @Query("SELECT COUNT(r) FROM Review r WHERE r.user.id = :userId")
     int countByUserId(Long userId);
 
-    List<Review> findByUserIdOrderByCreatedAtDesc(Long userId);
+    List<Review> findByUser(User user, Pageable pageable);
 }

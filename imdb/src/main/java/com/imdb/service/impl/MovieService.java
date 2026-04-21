@@ -1,6 +1,7 @@
 package com.imdb.service.impl;
 
 import com.imdb.dto.response.MovieApiResponse;
+import com.imdb.dto.response.MovieDetailResponse;
 import com.imdb.service.IMovieService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -150,5 +152,50 @@ public class MovieService implements IMovieService {
             log.error("Error searching movies", e);
             throw new RuntimeException("Failed to search movies", e);
         }
+    }
+
+    @Override
+    public MovieDetailResponse getMovieDetail(Long movieId) {
+        try {
+            String url = tmdbBaseUrl + "/movie/{movieId}";
+
+            URI uri = UriComponentsBuilder.fromUriString(url)
+                    .queryParam("language", "en-US")
+                    .buildAndExpand(movieId)
+                    .toUri();
+
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    uri,
+                    HttpMethod.GET,
+                    createAuthHeaders(),
+                    Map.class
+            );
+
+            Map body = response.getBody();
+
+            return mapToMovieDetail(body);
+
+        } catch (Exception e) {
+            log.error("Error fetching movie detail", e);
+            throw new RuntimeException("Failed to fetch movie detail", e);
+        }
+    }
+
+    private MovieDetailResponse mapToMovieDetail(Map body) {
+        MovieDetailResponse dto = new MovieDetailResponse();
+
+        dto.setId(Long.valueOf(body.get("id").toString()));
+        dto.setTitle((String) body.get("title"));
+        dto.setOverview((String) body.get("overview"));
+        dto.setPosterPath((String) body.get("poster_path"));
+        dto.setBackdropPath((String) body.get("backdrop_path"));
+        dto.setVoteAverage(Double.valueOf(body.get("vote_average").toString()));
+        dto.setReleaseDate((String) body.get("release_date"));
+
+        if (body.get("runtime") != null) {
+            dto.setRuntime(Integer.valueOf(body.get("runtime").toString()));
+        }
+
+        return dto;
     }
 }
