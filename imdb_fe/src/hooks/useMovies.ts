@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { getPopularMovies, searchMoviesFromBackend } from '../api/endpoints';
 import { Movie } from '../types/movie.types';
 import { useMovieStore } from '../store/movieStore';
+import { useBlacklistStore } from '../store/blacklistStore';
 
 export const useMovies = (initialPage: number = 1) => {
     const [page, setPage] = useState(initialPage);
@@ -63,6 +64,7 @@ export const useMovies = (initialPage: number = 1) => {
 };
 
 export const useMovieSearch = (query: string, delay: number = 500) => {
+    const filterMovies = useBlacklistStore((s) => s.filterMovies);
     const [results, setResults] = useState<Movie[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -78,7 +80,7 @@ export const useMovieSearch = (query: string, delay: number = 500) => {
                 setLoading(true);
                 setError(null);
                 const data = await searchMoviesFromBackend(query);
-                setResults(data.results);
+                setResults(filterMovies(data.results));
             } catch (err) {
                 setError('Search failed. Please try again.');
                 console.error(err);

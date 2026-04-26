@@ -10,5 +10,4 @@ import java.util.List;
 public interface IReviewService {
     ReviewResponse getMovieReviews(Long movieId, Integer page);
     ReviewItem createReview(Long movieId, CreateReviewRequest request);
-    List<ReviewResponse> getMyRecentReviews(User user, int limit);
 }

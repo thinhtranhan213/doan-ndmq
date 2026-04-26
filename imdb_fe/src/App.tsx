@@ -14,60 +14,78 @@ import EditProfile from './pages/EditProfile/EditProfile';
 import Layout from './components/Layout/Layout';
 import ScrollToTop from './components/ScrollToTop/ScrollToTop';
 import { useAuthStore } from './store/authStore';
+import { useBlacklistStore } from './store/blacklistStore';
+
+// Admin
+import AdminRoute from './components/Admin/AdminRoute';
+import AdminLayout from './layouts/AdminLayout';
+import AdminDashboard from './pages/Admin/AdminDashboard';
+import UserManagement from './pages/Admin/UserManagement';
+import ViolationManagement from './pages/Admin/ViolationManagement';
+import FilmManagement from './pages/Admin/FilmManagement';
+import ReviewManagement from './pages/Admin/ReviewManagement';
+import SystemReport from './pages/Admin/SystemReport';
+
+const AUTH_PATHS = ['/login', '/signup', '/forgot-password', '/login-success'];
 
 const AppRoutes: React.FC = () => {
-  const location = useLocation();
-  const { initializeAuth, isAuthenticated } = useAuthStore();
+    const location = useLocation();
+    const { initializeAuth, isAuthenticated } = useAuthStore();
+    const fetchBlacklist = useBlacklistStore((s) => s.fetchBlacklist);
 
-  // Initialize auth state on app mount
-  useEffect(() => {
-    initializeAuth();
-  }, [initializeAuth]);
+    useEffect(() => { initializeAuth(); }, [initializeAuth]);
+    useEffect(() => { fetchBlacklist(); }, [fetchBlacklist]);
 
-  // Don't show Navbar on login/signup/forgot-password/login-success page
-  const isAuthPage =
-    location.pathname === '/login' ||
-    location.pathname === '/signup' ||
-    location.pathname === '/forgot-password' ||
-    location.pathname === '/login-success';
+    const isAuthPage = AUTH_PATHS.includes(location.pathname);
+    const isAdminPage = location.pathname.startsWith('/admin');
 
-  // Redirect to login if not authenticated (except on auth pages)
-  if (!isAuthenticated && !isAuthPage) {
-    return <Navigate to="/login" replace />;
-  }
+    if (!isAuthenticated && !isAuthPage) return <Navigate to="/login" replace />;
+    if (isAuthenticated && isAuthPage)  return <Navigate to="/"      replace />;
 
-  // Redirect to home if authenticated and trying to access auth pages
-  if (isAuthenticated && isAuthPage) {
-    return <Navigate to="/" replace />;
-  }
+    return (
+        <>
+            <ScrollToTop />
+            {/* Navbar chỉ hiện trên trang chủ (không hiện trên auth pages và admin pages) */}
+            {!isAuthPage && !isAdminPage && <Navbar />}
+            <Routes>
+                {/* ── Public / Main ── */}
+                <Route path="/"               element={<Layout><Home /></Layout>} />
+                <Route path="/login"          element={<Login />} />
+                <Route path="/login-success"  element={<LoginSuccess />} />
+                <Route path="/signup"         element={<SignUp />} />
+                <Route path="/forgot-password"element={<ForgotPassword />} />
+                <Route path="/profile"        element={<Layout><Profile /></Layout>} />
+                <Route path="/edit-profile"   element={<Layout><EditProfile /></Layout>} />
+                <Route path="/genre/:genreId" element={<Layout><GenrePage /></Layout>} />
+                <Route path="/movie/:id"      element={<Layout><MovieDetail /></Layout>} />
+                <Route path="/search"         element={<Layout><Search /></Layout>} />
 
-  return (
-    <>
-      <ScrollToTop />
-      {!isAuthPage && <Navbar />}
-      <Routes>
-        {/* Temporarily allow all routes */}
-        <Route path="/" element={<Layout><Home /></Layout>} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/login-success" element={<LoginSuccess />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/profile" element={<Layout><Profile /></Layout>} />
-        <Route path="/edit-profile" element={<Layout><EditProfile /></Layout>} />
-        <Route path="/genre/:genreId" element={<Layout><GenrePage /></Layout>} />
-        <Route path="/movie/:id" element={<Layout><MovieDetail /></Layout>} />
-        <Route path="/search" element={<Layout><Search /></Layout>} />
-      </Routes>
-    </>
-  );
+                {/* ── Admin (isolated layout, role-guarded) ── */}
+                <Route
+                    path="/admin"
+                    element={
+                        <AdminRoute>
+                            <AdminLayout />
+                        </AdminRoute>
+                    }
+                >
+                    <Route index element={<Navigate to="dashboard" replace />} />
+                    <Route path="dashboard"  element={<AdminDashboard />} />
+                    <Route path="users"      element={<UserManagement />} />
+                    <Route path="violations" element={<ViolationManagement />} />
+                    <Route path="films"      element={<FilmManagement />} />
+                    <Route path="reviews"    element={<ReviewManagement />} />
+                    <Route path="reports"    element={<SystemReport />} />
+                </Route>
+            </Routes>
+        </>
+    );
 };
 
-const App: React.FC = () => {
-  return (
+const App: React.FC = () => (
     <BrowserRouter>
-      <AppRoutes />
+        <AppRoutes />
     </BrowserRouter>
-  );
-};
+);
 
 export default App;
