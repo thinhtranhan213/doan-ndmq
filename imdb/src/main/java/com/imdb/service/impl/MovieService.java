@@ -38,15 +38,16 @@ public class MovieService implements IMovieService {
     }
 
     @Override
-    public MovieApiResponse getTrendingMovies(String timeWindow) {
+    public MovieApiResponse getTrendingMovies(String timeWindow, String language) {
         try {
             String url = tmdbBaseUrl + "/trending/movie/{timeWindow}";
+            String finalLanguage = language != null ? language : "en-US";
             URI uri = UriComponentsBuilder.fromUriString(url)
-                    .queryParam("language", "en-US")
+                    .queryParam("language", finalLanguage)
                     .buildAndExpand(timeWindow)
                     .toUri();
 
-            log.info("Fetching trending movies from TMDB: {}", uri);
+            log.info("Fetching trending movies from TMDB with language={}: {}", finalLanguage, uri);
             ResponseEntity<MovieApiResponse> response = restTemplate.exchange(
                     uri,
                     HttpMethod.GET,
@@ -60,16 +61,17 @@ public class MovieService implements IMovieService {
     }
 
     @Override
-    public MovieApiResponse getTopRatedMovies(Integer page) {
+    public MovieApiResponse getTopRatedMovies(Integer page, String language) {
         try {
             String url = tmdbBaseUrl + "/movie/top_rated";
+            String finalLanguage = language != null ? language : "en-US";
             URI uri = UriComponentsBuilder.fromUriString(url)
-                    .queryParam("language", "en-US")
+                    .queryParam("language", finalLanguage)
                     .queryParam("page", page != null ? page : 1)
                     .build()
                     .toUri();
 
-            log.info("Fetching top rated movies from TMDB: {}", uri);
+            log.info("Fetching top rated movies from TMDB with language={}: {}", finalLanguage, uri);
             ResponseEntity<MovieApiResponse> response = restTemplate.exchange(
                     uri,
                     HttpMethod.GET,
@@ -83,16 +85,17 @@ public class MovieService implements IMovieService {
     }
 
     @Override
-    public MovieApiResponse getPopularMovies(Integer page) {
+    public MovieApiResponse getPopularMovies(Integer page, String language) {
         try {
             String url = tmdbBaseUrl + "/movie/popular";
+            String finalLanguage = language != null ? language : "en-US";
             URI uri = UriComponentsBuilder.fromUriString(url)
-                    .queryParam("language", "en-US")
+                    .queryParam("language", finalLanguage)
                     .queryParam("page", page != null ? page : 1)
                     .build()
                     .toUri();
 
-            log.info("Fetching popular movies from TMDB: {}", uri);
+            log.info("Fetching popular movies from TMDB with language={}: {}", finalLanguage, uri);
             ResponseEntity<MovieApiResponse> response = restTemplate.exchange(
                     uri,
                     HttpMethod.GET,
@@ -106,18 +109,19 @@ public class MovieService implements IMovieService {
     }
 
     @Override
-    public MovieApiResponse getMoviesByGenre(Integer genreId, Integer page) {
+    public MovieApiResponse getMoviesByGenre(Integer genreId, Integer page, String language) {
         try {
             String url = tmdbBaseUrl + "/discover/movie";
+            String finalLanguage = language != null ? language : "en-US";
             URI uri = UriComponentsBuilder.fromUriString(url)
                     .queryParam("with_genres", genreId)
-                    .queryParam("language", "en-US")
+                    .queryParam("language", finalLanguage)
                     .queryParam("page", page != null ? page : 1)
                     .queryParam("sort_by", "popularity.desc")
                     .build()
                     .toUri();
 
-            log.info("Fetching movies by genre {} from TMDB: {}", genreId, uri);
+            log.info("Fetching movies by genre {} from TMDB with language={}: {}", genreId, finalLanguage, uri);
             ResponseEntity<MovieApiResponse> response = restTemplate.exchange(
                     uri,
                     HttpMethod.GET,
@@ -131,17 +135,18 @@ public class MovieService implements IMovieService {
     }
 
     @Override
-    public MovieApiResponse searchMovies(String query, Integer page) {
+    public MovieApiResponse searchMovies(String query, Integer page, String language) {
         try {
             String url = tmdbBaseUrl + "/search/movie";
+            String finalLanguage = language != null ? language : "en-US";
             URI uri = UriComponentsBuilder.fromUriString(url)
                     .queryParam("query", query)
-                    .queryParam("language", "en-US")
+                    .queryParam("language", finalLanguage)
                     .queryParam("page", page != null ? page : 1)
                     .build()
                     .toUri();
 
-            log.info("Searching movies with query '{}' from TMDB: {}", query, uri);
+            log.info("Searching movies with query '{}' from TMDB with language={}: {}", query, finalLanguage, uri);
             ResponseEntity<MovieApiResponse> response = restTemplate.exchange(
                     uri,
                     HttpMethod.GET,
@@ -181,11 +186,12 @@ public class MovieService implements IMovieService {
     }
 
     @Override
-    public MovieApiResponse filterMovies(String genreIds, Integer year, String country, Integer page) {
+    public MovieApiResponse filterMovies(String genreIds, Integer year, String country, Integer page, String language) {
         try {
             String url = tmdbBaseUrl + "/discover/movie";
+            String finalLanguage = language != null ? language : "en-US";
             UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url)
-                    .queryParam("language", "en-US")
+                    .queryParam("language", finalLanguage)
                     .queryParam("page", page != null ? page : 1)
                     .queryParam("sort_by", "popularity.desc");
 
@@ -206,8 +212,8 @@ public class MovieService implements IMovieService {
 
             URI uri = builder.build().toUri();
 
-            log.info("Filtering movies from TMDB with genres={}, year={}, country={}: {}", genreIds, year, country,
-                    uri);
+            log.info("Filtering movies from TMDB with genres={}, year={}, country={}, language={}: {}", genreIds, year, country,
+                    finalLanguage, uri);
             ResponseEntity<MovieApiResponse> response = restTemplate.exchange(
                     uri,
                     HttpMethod.GET,

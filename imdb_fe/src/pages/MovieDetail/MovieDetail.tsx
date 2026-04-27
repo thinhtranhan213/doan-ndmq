@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMovieDetail } from '../../hooks/useMovieDetail';
 import { useBlacklistStore } from '../../store/blacklistStore';
+import { usePlaylistStore } from '../../store/playlistStore';
+import { useAuthStore } from '../../store/authStore';
 import MovieCard from '../../components/MovieCard/MovieCard';
 import { getImageUrl, IMAGE_SIZES, formatDate, formatRuntime, formatCurrency } from '../../utils/constants';
 import PlaylistModal from './PlaylistModal';
@@ -15,9 +17,21 @@ const MovieDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const isBlacklisted = useBlacklistStore((s) => s.isBlacklisted);
     const { movie, credits, similarMovies, recommendations, loading, error } = useMovieDetail(Number(id));
+    const { isAuthenticated } = useAuthStore();
+    const { toggleMovieInPlaylist } = usePlaylistStore();
     const [showAllCast, setShowAllCast] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [showTrailer, setShowTrailer] = useState(false);
+
+    // Add movie to Recently Viewed when component loads and movie is available
+    useEffect(() => {
+        if (movie && isAuthenticated) {
+            console.log(`Adding movie ${movie.id} to Recently Viewed`);
+            toggleMovieInPlaylist('recentlyViewed', movie.id).catch(err => {
+                console.error('Failed to add to Recently Viewed:', err);
+            });
+        }
+    }, [movie?.id, isAuthenticated, toggleMovieInPlaylist]);
 
     if (loading) {
         return (

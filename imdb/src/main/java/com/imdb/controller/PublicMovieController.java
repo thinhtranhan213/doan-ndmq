@@ -25,12 +25,14 @@ public class PublicMovieController {
      * Get trending movies
      * 
      * @param timeWindow 'day' or 'week' (default: 'week')
+     * @param language language code (default: 'en-US')
      * @return MovieApiResponse with list of trending movies
      */
     @GetMapping("/trending")
     public ResponseEntity<MovieApiResponse> getTrendingMovies(
-            @RequestParam(defaultValue = "week") String timeWindow) {
-        MovieApiResponse response = movieService.getTrendingMovies(timeWindow);
+            @RequestParam(defaultValue = "week") String timeWindow,
+            @RequestParam(defaultValue = "en-US") String language) {
+        MovieApiResponse response = movieService.getTrendingMovies(timeWindow, language);
         return ResponseEntity.ok(response);
     }
 
@@ -38,12 +40,14 @@ public class PublicMovieController {
      * Get top rated movies
      * 
      * @param page page number (default: 1)
+     * @param language language code (default: 'en-US')
      * @return MovieApiResponse with list of top rated movies
      */
     @GetMapping("/top-rated")
     public ResponseEntity<MovieApiResponse> getTopRatedMovies(
-            @RequestParam(defaultValue = "1") Integer page) {
-        MovieApiResponse response = movieService.getTopRatedMovies(page);
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "en-US") String language) {
+        MovieApiResponse response = movieService.getTopRatedMovies(page, language);
         return ResponseEntity.ok(response);
     }
 
@@ -51,12 +55,14 @@ public class PublicMovieController {
      * Get popular movies
      * 
      * @param page page number (default: 1)
+     * @param language language code (default: 'en-US')
      * @return MovieApiResponse with list of popular movies
      */
     @GetMapping("/popular")
     public ResponseEntity<MovieApiResponse> getPopularMovies(
-            @RequestParam(defaultValue = "1") Integer page) {
-        MovieApiResponse response = movieService.getPopularMovies(page);
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "en-US") String language) {
+        MovieApiResponse response = movieService.getPopularMovies(page, language);
         return ResponseEntity.ok(response);
     }
 
@@ -65,13 +71,15 @@ public class PublicMovieController {
      * 
      * @param genreId genre ID
      * @param page    page number (default: 1)
+     * @param language language code (default: 'en-US')
      * @return MovieApiResponse with list of movies for the genre
      */
     @GetMapping("/by-genre")
     public ResponseEntity<MovieApiResponse> getMoviesByGenre(
             @RequestParam Integer genreId,
-            @RequestParam(defaultValue = "1") Integer page) {
-        MovieApiResponse response = movieService.getMoviesByGenre(genreId, page);
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "en-US") String language) {
+        MovieApiResponse response = movieService.getMoviesByGenre(genreId, page, language);
         return ResponseEntity.ok(response);
     }
 
@@ -80,13 +88,15 @@ public class PublicMovieController {
      * 
      * @param query search query
      * @param page  page number (default: 1)
+     * @param language language code (default: 'en-US')
      * @return MovieApiResponse with search results
      */
     @GetMapping("/search")
     public ResponseEntity<MovieApiResponse> searchMovies(
             @RequestParam String query,
-            @RequestParam(defaultValue = "1") Integer page) {
-        MovieApiResponse response = movieService.searchMovies(query, page);
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "en-US") String language) {
+        MovieApiResponse response = movieService.searchMovies(query, page, language);
         return ResponseEntity.ok(response);
     }
 
@@ -97,6 +107,7 @@ public class PublicMovieController {
      * @param year     release year
      * @param country  country code (ISO 3166-1 alpha-2)
      * @param page     page number (default: 1)
+     * @param language language code (default: 'en-US')
      * @return MovieApiResponse with filtered movies
      */
     @GetMapping("/filter")
@@ -104,8 +115,9 @@ public class PublicMovieController {
             @RequestParam(required = false) String genreIds,
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) String country,
-            @RequestParam(defaultValue = "1") Integer page) {
-        MovieApiResponse response = movieService.filterMovies(genreIds, year, country, page);
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "en-US") String language) {
+        MovieApiResponse response = movieService.filterMovies(genreIds, year, country, page, language);
         return ResponseEntity.ok(response);
     }
 

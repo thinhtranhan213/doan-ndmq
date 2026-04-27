@@ -21,12 +21,34 @@ export const getConfiguration = async (): Promise<ImageConfig> => {
 backendApi.interceptors.request.use((config) => {
     const token = localStorage.getItem("authToken");
 
+    console.log('Request interceptor - token:', token ? 'exists' : 'NOT FOUND', 'url:', config.url);
+
     if (token && !config.url?.includes("/public")) {
+        // Set Authorization header using proper method
         config.headers.Authorization = `Bearer ${token}`;
+        console.log('✅ Authorization header set for:', config.url);
+    } else if (!token) {
+        console.warn('⚠️ No token found in localStorage');
     }
 
+    console.log('📤 Request headers:', config.headers);
     return config;
 });
+
+// Response interceptor for error handling
+backendApi.interceptors.response.use(
+    (response) => {
+        console.log('✅ Response from:', response.config.url, 'status:', response.status);
+        return response;
+    },
+    (error) => {
+        if (error.response?.status === 401) {
+            console.error('❌ 401 Unauthorized - Token might be invalid or expired');
+            console.log('Token in localStorage:', localStorage.getItem('authToken'));
+        }
+        return Promise.reject(error);
+    }
+);
 
 // Get all genres
 export const getGenres = async (): Promise<Genre[]> => {
@@ -128,7 +150,7 @@ export const getTopRatedMovies = async (page: number = 1): Promise<ApiResponse<M
 // Get trending movies from backend
 export const getTrendingMoviesFromBackend = async (timeWindow: 'day' | 'week' = 'week'): Promise<ApiResponse<Movie>> => {
     const response = await backendApi.get('/public/movies/trending', {
-        params: { timeWindow },
+        params: { timeWindow, language: getTmdbLanguageCode() },
     });
     return response.data;
 };
@@ -136,7 +158,7 @@ export const getTrendingMoviesFromBackend = async (timeWindow: 'day' | 'week' = 
 // Get top rated movies from backend
 export const getTopRatedMoviesFromBackend = async (page: number = 1): Promise<ApiResponse<Movie>> => {
     const response = await backendApi.get('/public/movies/top-rated', {
-        params: { page },
+        params: { page, language: getTmdbLanguageCode() },
     });
     return response.data;
 };
@@ -144,7 +166,7 @@ export const getTopRatedMoviesFromBackend = async (page: number = 1): Promise<Ap
 // Get popular movies from backend
 export const getPopularMoviesFromBackend = async (page: number = 1): Promise<ApiResponse<Movie>> => {
     const response = await backendApi.get('/public/movies/popular', {
-        params: { page },
+        params: { page, language: getTmdbLanguageCode() },
     });
     return response.data;
 };
@@ -152,7 +174,7 @@ export const getPopularMoviesFromBackend = async (page: number = 1): Promise<Api
 // Get movies by genre from backend
 export const getMoviesByGenreFromBackend = async (genreId: number, page: number = 1): Promise<ApiResponse<Movie>> => {
     const response = await backendApi.get('/public/movies/by-genre', {
-        params: { genreId, page },
+        params: { genreId, page, language: getTmdbLanguageCode() },
     });
     return response.data;
 };
@@ -160,7 +182,7 @@ export const getMoviesByGenreFromBackend = async (genreId: number, page: number 
 // Search movies from backend
 export const searchMoviesFromBackend = async (query: string, page: number = 1): Promise<ApiResponse<Movie>> => {
     const response = await backendApi.get('/public/movies/search', {
-        params: { query, page },
+        params: { query, page, language: getTmdbLanguageCode() },
     });
     return response.data;
 };
@@ -172,7 +194,7 @@ export const filterMoviesFromBackend = async (
     country?: string,
     page: number = 1
 ): Promise<ApiResponse<Movie>> => {
-    const params: any = { page };
+    const params: any = { page, language: getTmdbLanguageCode() };
 
     if (genreIds) params.genreIds = genreIds;
     if (year) params.year = year;

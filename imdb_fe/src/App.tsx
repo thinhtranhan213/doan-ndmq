@@ -15,6 +15,7 @@ import Layout from './components/Layout/Layout';
 import ScrollToTop from './components/ScrollToTop/ScrollToTop';
 import { useAuthStore } from './store/authStore';
 import { useBlacklistStore } from './store/blacklistStore';
+import { usePlaylistStore } from './store/playlistStore';
 
 // Admin
 import AdminRoute from './components/Admin/AdminRoute';
@@ -32,14 +33,21 @@ const AppRoutes: React.FC = () => {
   const location = useLocation();
   const { initializeAuth, isAuthenticated } = useAuthStore();
   const fetchBlacklist = useBlacklistStore((s) => s.fetchBlacklist);
+  const initializePlaylists = usePlaylistStore((s) => s.initializePlaylists);
 
   useEffect(() => { initializeAuth(); }, [initializeAuth]);
   useEffect(() => { fetchBlacklist(); }, [fetchBlacklist]);
+  useEffect(() => {
+    if (isAuthenticated) {
+      initializePlaylists().catch(err => {
+        console.error('Failed to initialize playlists:', err);
+      });
+    }
+  }, [isAuthenticated, initializePlaylists]);
 
   const isAuthPage = AUTH_PATHS.includes(location.pathname);
   const isAdminPage = location.pathname.startsWith('/admin');
 
-  if (!isAuthenticated && !isAuthPage) return <Navigate to="/login" replace />;
   if (isAuthenticated && isAuthPage) return <Navigate to="/" replace />;
 
   return (
@@ -55,11 +63,11 @@ const AppRoutes: React.FC = () => {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route
           path="/profile"
-          element={isAuthenticated ? <Layout><Profile /></Layout> : <Navigate to="/login" replace />}
+          element={isAuthenticated ? <Layout><Profile /></Layout> : <Navigate to="/" replace />}
         />
         <Route
           path="/edit-profile"
-          element={isAuthenticated ? <Layout><EditProfile /></Layout> : <Navigate to="/login" replace />}
+          element={isAuthenticated ? <Layout><EditProfile /></Layout> : <Navigate to="/" replace />}
         />
         <Route path="/genre/:genreId" element={<Layout><GenrePage /></Layout>} />
         <Route path="/movie/:id" element={<Layout><MovieDetail /></Layout>} />
@@ -75,12 +83,12 @@ const AppRoutes: React.FC = () => {
           }
         >
           <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard"  element={<AdminDashboard />} />
-          <Route path="users"      element={<UserManagement />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="users" element={<UserManagement />} />
           <Route path="violations" element={<ViolationManagement />} />
-          <Route path="films"      element={<FilmManagement />} />
-          <Route path="reviews"    element={<ReviewManagement />} />
-          <Route path="reports"    element={<SystemReport />} />
+          <Route path="films" element={<FilmManagement />} />
+          <Route path="reviews" element={<ReviewManagement />} />
+          <Route path="reports" element={<SystemReport />} />
         </Route>
       </Routes>
     </>

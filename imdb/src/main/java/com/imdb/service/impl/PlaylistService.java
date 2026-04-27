@@ -1,8 +1,8 @@
 package com.imdb.service.impl;
 
-
 import com.imdb.config.user.CustomUserDetails;
 import com.imdb.dto.response.PlaylistResponse;
+import com.imdb.dto.response.PlaylistMovieDTO;
 import com.imdb.entity.Playlist;
 import com.imdb.entity.PlaylistMovie;
 import com.imdb.entity.User;
@@ -35,8 +35,7 @@ public class PlaylistService implements IPlaylistService {
 
     @Override
     public boolean toggleMovie(Long playlistId, Long movieId) {
-        Optional<PlaylistMovie> existing =
-                playlistMovieRepo.findByPlaylistIdAndMovieId(playlistId, movieId);
+        Optional<PlaylistMovie> existing = playlistMovieRepo.findByPlaylistIdAndMovieId(playlistId, movieId);
 
         if (existing.isPresent()) {
             playlistMovieRepo.delete(existing.get());
@@ -65,5 +64,14 @@ public class PlaylistService implements IPlaylistService {
 
             return new PlaylistResponse(p.getId(), p.getName(), contains);
         }).toList();
+    }
+
+    @Override
+    public List<PlaylistMovieDTO> getPlaylistMovies(Long playlistId) {
+        log.info("Fetching movies for playlist: {}", playlistId);
+        return playlistMovieRepo.findByPlaylistId(playlistId)
+                .stream()
+                .map(pm -> new PlaylistMovieDTO(pm.getMovieId()))
+                .toList();
     }
 }

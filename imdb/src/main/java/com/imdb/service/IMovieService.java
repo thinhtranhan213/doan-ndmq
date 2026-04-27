@@ -8,43 +8,48 @@ public interface IMovieService {
      * Get trending movies from TMDB API
      * 
      * @param timeWindow 'day' or 'week'
+     * @param language language code (default: 'en-US')
      * @return MovieApiResponse containing list of trending movies
      */
-    MovieApiResponse getTrendingMovies(String timeWindow);
+    MovieApiResponse getTrendingMovies(String timeWindow, String language);
 
     /**
      * Get top rated movies from TMDB API
      * 
      * @param page page number (default 1)
+     * @param language language code (default: 'en-US')
      * @return MovieApiResponse containing list of top rated movies
      */
-    MovieApiResponse getTopRatedMovies(Integer page);
+    MovieApiResponse getTopRatedMovies(Integer page, String language);
 
     /**
      * Get popular movies from TMDB API
      * 
      * @param page page number (default 1)
+     * @param language language code (default: 'en-US')
      * @return MovieApiResponse containing list of popular movies
      */
-    MovieApiResponse getPopularMovies(Integer page);
+    MovieApiResponse getPopularMovies(Integer page, String language);
 
     /**
      * Get movies by genre from TMDB API
      * 
      * @param genreId genre ID
      * @param page    page number (default 1)
+     * @param language language code (default: 'en-US')
      * @return MovieApiResponse containing list of movies for the genre
      */
-    MovieApiResponse getMoviesByGenre(Integer genreId, Integer page);
+    MovieApiResponse getMoviesByGenre(Integer genreId, Integer page, String language);
 
     /**
      * Search movies by query from TMDB API
      * 
      * @param query search query
      * @param page  page number (default 1)
+     * @param language language code (default: 'en-US')
      * @return MovieApiResponse containing search results
      */
-    MovieApiResponse searchMovies(String query, Integer page);
+    MovieApiResponse searchMovies(String query, Integer page, String language);
 
     /**
      * Filter movies by multiple criteria
@@ -53,9 +58,10 @@ public interface IMovieService {
      * @param year     release year
      * @param country  country code (ISO 3166-1 alpha-2)
      * @param page     page number (default 1)
+     * @param language language code (default: 'en-US')
      * @return MovieApiResponse containing filtered movies
      */
-    MovieApiResponse filterMovies(String genreIds, Integer year, String country, Integer page);
+    MovieApiResponse filterMovies(String genreIds, Integer year, String country, Integer page, String language);
 
     MovieDetailResponse getMovieDetail(Long movieId);
 }

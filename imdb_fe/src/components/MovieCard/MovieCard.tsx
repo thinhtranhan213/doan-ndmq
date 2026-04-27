@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Movie } from '../../types/movie.types';
 import { getImageUrl, IMAGE_SIZES } from '../../utils/constants';
 import { useAuthStore } from '../../store/authStore';
-import { useWatchlistStore } from '../../store/watchlistStore';
+import { usePlaylistStore } from '../../store/playlistStore';
 
 interface MovieCardProps {
     movie: Movie;
@@ -16,14 +16,21 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie }) => {
     const navigate = useNavigate();
     const imageUrl = getImageUrl(movie.poster_path, IMAGE_SIZES.POSTER_MEDIUM);
     const { isAuthenticated } = useAuthStore();
-    const { toggleMovieInWatchlist, loading, watchlistMovieIds } = useWatchlistStore();
+    const { toggleMovieInPlaylist, loading, favorites, watchLater } = usePlaylistStore();
     const [isInList, setIsInList] = useState(false);
+    const [isInWatchLater, setIsInWatchLater] = useState(false);
     const [isHovering, setIsHovering] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    // Subscribe to watchlist changes
+    // Subscribe to favorites changes
     useEffect(() => {
-        setIsInList(watchlistMovieIds.has(movie.id));
-    }, [movie.id, watchlistMovieIds]);
+        setIsInList(favorites.movieIds.has(movie.id));
+    }, [movie.id, favorites.movieIds]);
+
+    // Subscribe to watchLater changes
+    useEffect(() => {
+        setIsInWatchLater(watchLater.movieIds.has(movie.id));
+    }, [movie.id, watchLater.movieIds]);
 
     const handleWatchlistClick = useCallback(async (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -34,11 +41,40 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie }) => {
         }
 
         try {
-            await toggleMovieInWatchlist(movie.id);
-        } catch (error) {
-            console.error('Error toggling watchlist:', error);
+            setError(null);
+            console.log(`Toggling favorite for movie ${movie.id}`);
+            await toggleMovieInPlaylist('favorites', movie.id);
+            console.log(`Successfully toggled favorite for movie ${movie.id}`);
+        } catch (err) {
+            const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+            console.error('Error toggling watchlist:', err);
+            setError(errorMsg);
+            // Show error for 3 seconds
+            setTimeout(() => setError(null), 3000);
         }
-    }, [movie.id, isAuthenticated, navigate, toggleMovieInWatchlist]);
+    }, [movie.id, isAuthenticated, navigate, toggleMovieInPlaylist]);
+
+    const handleWatchLaterClick = useCallback(async (e: React.MouseEvent) => {
+        e.stopPropagation();
+
+        if (!isAuthenticated) {
+            navigate('/login');
+            return;
+        }
+
+        try {
+            setError(null);
+            console.log(`Toggling watch later for movie ${movie.id}`);
+            await toggleMovieInPlaylist('watchLater', movie.id);
+            console.log(`Successfully toggled watch later for movie ${movie.id}`);
+        } catch (err) {
+            const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+            console.error('Error toggling watch later:', err);
+            setError(errorMsg);
+            // Show error for 3 seconds
+            setTimeout(() => setError(null), 3000);
+        }
+    }, [movie.id, isAuthenticated, navigate, toggleMovieInPlaylist]);
 
     return (
         <div
@@ -57,21 +93,48 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie }) => {
 
                 {/* Watchlist Button - Hiển thị khi user đăng nhập và hover */}
                 {isAuthenticated && isHovering && (
-                    <button
-                        onClick={handleWatchlistClick}
-                        disabled={loading}
-                        className={`absolute top-2 right-2 z-30 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${isInList
-                            ? 'bg-red-500 text-white hover:bg-red-600'
-                            : 'bg-gray-700/80 text-white hover:bg-gray-600'
-                            } disabled:opacity-50 disabled:cursor-not-allowed`}
-                        title={isInList ? t('movies.removeFromWatchlist') : t('movies.addToWatchlist')}
-                    >
-                        {loading ? (
-                            <span className="animate-spin">⌛</span>
-                        ) : (
-                            <span className="text-lg">{isInList ? '❤️' : '🤍'}</span>
-                        )}
-                    </button>
+                    <div className="absolute top-2 right-2 z-30 flex flex-col gap-2">
+                        {/* Heart Button - Add to Favorites */}
+                        <button
+                            onClick={handleWatchlistClick}
+                            disabled={loading}
+                            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${isInList
+                                ? 'bg-red-500 text-white hover:bg-red-600'
+                                : 'bg-gray-700/80 text-white hover:bg-gray-600'
+                                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                            title={isInList ? t('movies.removeFromWatchlist') : t('movies.addToWatchlist')}
+                        >
+                            {loading ? (
+                                <span className="animate-spin">⌛</span>
+                            ) : (
+                                <span className="text-lg">{isInList ? '❤️' : '🤍'}</span>
+                            )}
+                        </button>
+
+                        {/* Watch Later Button - Add to Watch Later */}
+                        <button
+                            onClick={handleWatchLaterClick}
+                            disabled={loading}
+                            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${isInWatchLater
+                                ? 'bg-blue-500 text-white hover:bg-blue-600'
+                                : 'bg-gray-700/80 text-white hover:bg-gray-600'
+                                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                            title={t('profile.watchLater') || 'Watch Later'}
+                        >
+                            {loading ? (
+                                <span className="animate-spin">⌛</span>
+                            ) : (
+                                <span className="text-lg">{isInWatchLater ? '📅' : '📅'}</span>
+                            )}
+                        </button>
+                    </div>
+                )}
+
+                {/* Error Message */}
+                {error && isHovering && (
+                    <div className="absolute top-12 right-2 z-30 bg-red-500 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                        {error}
+                    </div>
                 )}
 
                 {/* Movie Info - Đè lên ảnh, chỉ hiển thị khi hover */}

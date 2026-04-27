@@ -161,7 +161,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilter, loading = false }) => {
                         <button
                             onClick={handleApplyFilter}
                             disabled={loading}
-                            className="px-6 py-2 bg-imdb-yellow text-slate-900 hover:bg-yellow-400 transition font-semibold rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-6 py-2 bg-slate-700 text-white hover:bg-slate-600 transition font-semibold rounded disabled:opacity-70 disabled:cursor-not-allowed"
                         >
                             {loading ? t('movies.loading') || 'Đang tải...' : t('movies.apply') || 'Áp dụng'}
                         </button>

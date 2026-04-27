@@ -26,25 +26,32 @@ export const useWatchlistStore = create<WatchlistState>((set, get) => ({
     initializeWatchlist: async () => {
         try {
             set({ loading: true, error: null });
+            console.log('Initializing watchlist...');
 
             // Lấy tất cả playlists (truyền movieId bất kỳ để check)
             const playlists = await getPlaylists(0) as any[];
+            console.log('Playlists fetched:', playlists);
 
             // Tìm hoặc tạo "My Watchlist"
             let watchlist = playlists.find((p) => p.name === WATCHLIST_NAME);
 
             if (!watchlist) {
+                console.log('Watchlist not found, creating new one...');
                 // Nếu chưa có, tạo mới
                 watchlist = await createPlaylist(WATCHLIST_NAME) as any;
+                console.log('New watchlist created:', watchlist);
             }
 
+            console.log('Setting watchlistId:', watchlist.id);
             set({ watchlistId: watchlist.id });
 
             // Load danh sách phim từ playlist
             await get().loadPlaylistMovies();
+            console.log('Watchlist initialized successfully');
         } catch (error) {
             console.error('Error initializing watchlist:', error);
             set({ error: 'Failed to initialize watchlist' });
+            throw error;
         } finally {
             set({ loading: false });
         }
@@ -71,20 +78,24 @@ export const useWatchlistStore = create<WatchlistState>((set, get) => ({
         const { watchlistId } = get();
 
         if (!watchlistId) {
+            console.error('Watchlist ID not set - watchlist not initialized');
             set({ error: 'Watchlist not initialized' });
-            return;
+            throw new Error('Watchlist not initialized');
         }
 
         try {
             set({ loading: true, error: null });
+            console.log(`Toggling movie ${movieId} in watchlist ${watchlistId}`);
 
             await toggleMovieInPlaylist(watchlistId, movieId);
 
             // Reload danh sách phim từ backend
             await get().loadPlaylistMovies();
+            console.log(`Successfully toggled movie ${movieId}`);
         } catch (error) {
             console.error('Error toggling movie in watchlist:', error);
             set({ error: 'Failed to update watchlist' });
+            throw error;
         } finally {
             set({ loading: false });
         }

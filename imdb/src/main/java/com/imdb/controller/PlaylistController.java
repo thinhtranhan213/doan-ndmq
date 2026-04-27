@@ -2,10 +2,12 @@ package com.imdb.controller;
 
 import com.imdb.config.user.CustomUserDetails;
 import com.imdb.dto.response.PlaylistResponse;
+import com.imdb.dto.response.PlaylistMovieDTO;
 import com.imdb.entity.Playlist;
 import com.imdb.entity.User;
 import com.imdb.service.impl.PlaylistService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -16,15 +18,16 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/playlists")
 @RequiredArgsConstructor
+@Slf4j
 public class PlaylistController {
 
     private final PlaylistService playlistService;
 
-//    @GetMapping
-//    public List<Playlist> getMyPlaylists() {
-//        Long userId = getUser().getId();
-//        return playlistService.getUserPlaylists(userId);
-//    }
+    // @GetMapping
+    // public List<Playlist> getMyPlaylists() {
+    // Long userId = getUser().getId();
+    // return playlistService.getUserPlaylists(userId);
+    // }
 
     @PostMapping
     public Playlist create(@RequestBody Map<String, String> req) {
@@ -35,12 +38,17 @@ public class PlaylistController {
     @PostMapping("/{playlistId}/toggle")
     public boolean toggleMovie(
             @PathVariable Long playlistId,
-            @RequestParam Long movieId
-    ) {
+            @RequestParam Long movieId) {
         return playlistService.toggleMovie(playlistId, movieId);
     }
 
-    protected User getUser(){
+    @GetMapping("/{playlistId}/movies")
+    public List<PlaylistMovieDTO> getPlaylistMovies(@PathVariable Long playlistId) {
+        log.info("Fetching movies for playlist: {}", playlistId);
+        return playlistService.getPlaylistMovies(playlistId);
+    }
+
+    protected User getUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
 
@@ -50,8 +58,7 @@ public class PlaylistController {
 
     @GetMapping
     public List<PlaylistResponse> getMyPlaylists(
-            @RequestParam(required = false) Long movieId
-    ) {
+            @RequestParam(required = false) Long movieId) {
         Long userId = getUser().getId();
 
         if (movieId != null) {
