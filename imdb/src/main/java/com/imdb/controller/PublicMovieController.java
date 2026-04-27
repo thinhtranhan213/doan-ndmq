@@ -20,6 +20,7 @@ public class PublicMovieController {
 
     private final IMovieService movieService;
     private final IReviewService reviewService;
+
     /**
      * Get trending movies
      * 
@@ -63,7 +64,7 @@ public class PublicMovieController {
      * Get movies by genre
      * 
      * @param genreId genre ID
-     * @param page page number (default: 1)
+     * @param page    page number (default: 1)
      * @return MovieApiResponse with list of movies for the genre
      */
     @GetMapping("/by-genre")
@@ -78,7 +79,7 @@ public class PublicMovieController {
      * Search movies
      * 
      * @param query search query
-     * @param page page number (default: 1)
+     * @param page  page number (default: 1)
      * @return MovieApiResponse with search results
      */
     @GetMapping("/search")
@@ -88,11 +89,30 @@ public class PublicMovieController {
         MovieApiResponse response = movieService.searchMovies(query, page);
         return ResponseEntity.ok(response);
     }
+
+    /**
+     * Filter movies by multiple criteria
+     * 
+     * @param genreIds comma-separated genre IDs
+     * @param year     release year
+     * @param country  country code (ISO 3166-1 alpha-2)
+     * @param page     page number (default: 1)
+     * @return MovieApiResponse with filtered movies
+     */
+    @GetMapping("/filter")
+    public ResponseEntity<MovieApiResponse> filterMovies(
+            @RequestParam(required = false) String genreIds,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) String country,
+            @RequestParam(defaultValue = "1") Integer page) {
+        MovieApiResponse response = movieService.filterMovies(genreIds, year, country, page);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{id}/reviews")
     public ResponseEntity<ReviewResponse> getReviews(
             @PathVariable Long id,
-            @RequestParam(defaultValue = "1") Integer page
-    ) {
+            @RequestParam(defaultValue = "1") Integer page) {
         return ResponseEntity.ok(reviewService.getMovieReviews(id, page));
     }
 
@@ -100,6 +120,5 @@ public class PublicMovieController {
     public ResponseEntity<MovieDetailResponse> getMovieDetail(@PathVariable Long id) {
         return ResponseEntity.ok(movieService.getMovieDetail(id));
     }
-
 
 }

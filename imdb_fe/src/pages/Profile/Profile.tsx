@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
 import { getCurrentUserProfile, ProfileResponse } from '../../api/auth';
 import { useMovies } from '../../hooks/useMovies';
+import { getPlaylists, getPlaylistMovies, getMovieDetails } from '../../api/endpoints';
 import { Movie } from '../../types/movie.types';
 import Footer from '../../components/Footer/Footer';
 
@@ -12,11 +13,12 @@ const Profile: React.FC = () => {
     const navigate = useNavigate();
     const { isAuthenticated } = useAuthStore();
     const [userProfile, setUserProfile] = useState<ProfileResponse['user'] | null>(null);
-        const [stats, setStats] = useState<ProfileResponse['stats'] | null>(null);    
+    const [stats, setStats] = useState<ProfileResponse['stats'] | null>(null);
 
     const [loading, setLoading] = useState(true);
     const { movies } = useMovies();
     const [watchlistMovies, setWatchlistMovies] = useState<Movie[]>([]);
+    const [watchlistLoading, setWatchlistLoading] = useState(false);
 
     useEffect(() => {
         if (!isAuthenticated) {
@@ -43,11 +45,41 @@ const Profile: React.FC = () => {
         }
     }, [isAuthenticated]);
 
+    // Fetch watchlist movies
     useEffect(() => {
-        if (movies.length > 0) {
-            setWatchlistMovies(movies.slice(0, 8));
+        const fetchWatchlistMovies = async () => {
+            try {
+                setWatchlistLoading(true);
+                // Get all playlists
+                const playlists = await getPlaylists(0) as any[];
+
+                // Find "My Watchlist" playlist
+                const watchlist = playlists.find((p) => p.name === 'My Watchlist');
+
+                if (watchlist) {
+                    // Get movie IDs from watchlist
+                    const movieData = await getPlaylistMovies(watchlist.id) as any[];
+
+                    if (movieData && movieData.length > 0) {
+                        // Fetch details for first 8 movies
+                        const moviesPromises = movieData.slice(0, 8).map((item: any) =>
+                            getMovieDetails(item.movieId).catch(() => null)
+                        );
+                        const movieDetails = await Promise.all(moviesPromises);
+                        setWatchlistMovies(movieDetails.filter(m => m !== null) as any);
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to load watchlist movies:', err);
+            } finally {
+                setWatchlistLoading(false);
+            }
+        };
+
+        if (isAuthenticated) {
+            fetchWatchlistMovies();
         }
-    }, [movies]);
+    }, [isAuthenticated]);
 
     if (loading) {
         return (
@@ -175,38 +207,47 @@ const Profile: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="bg-slate-900 rounded-lg p-8 text-center mb-4">
-                        <p className="text-slate-400 mb-4">{t('profile.noRatingsYet')}</p>
-                        <p className="text-slate-500 text-sm">{t('profile.trackWatchlistMessage')}</p>
-                    </div>
-
-                    {/* Movie Grid */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
-                        {watchlistMovies.map((movie: Movie) => (
-                            <div key={movie.id} className="cursor-pointer group">
-                                <div className="relative overflow-hidden rounded bg-slate-800 aspect-[2/3] mb-2">
-                                    {movie.poster_path ? (
-                                        <img
-                                            src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
-                                            alt={movie.title}
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center">
-                                            <span className="text-slate-500">{t('profile.noImage')}</span>
+                    {watchlistLoading ? (
+                        <div className="bg-slate-900 rounded-lg p-8 text-center">
+                            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-imdb-yellow mx-auto"></div>
+                            <p className="text-slate-400 mt-4">{t('movies.loading')}</p>
+                        </div>
+                    ) : watchlistMovies.length === 0 ? (
+                        <div className="bg-slate-900 rounded-lg p-8 text-center mb-4">
+                            <p className="text-slate-400 mb-4">{t('profile.noRatingsYet')}</p>
+                            <p className="text-slate-500 text-sm">{t('profile.trackWatchlistMessage')}</p>
+                        </div>
+                    ) : (
+                        <>
+                            {/* Movie Grid */}
+                            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 mb-6">
+                                {watchlistMovies.map((movie: Movie) => (
+                                    <div key={movie.id} className="cursor-pointer group" onClick={() => navigate(`/movie/${movie.id}`)}>
+                                        <div className="relative overflow-hidden rounded bg-slate-800 aspect-[2/3] mb-2">
+                                            {movie.poster_path ? (
+                                                <img
+                                                    src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
+                                                    alt={movie.title}
+                                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center">
+                                                    <span className="text-slate-500">{t('profile.noImage')}</span>
+                                                </div>
+                                            )}
                                         </div>
-                                    )}
-                                </div>
-                                <p className="text-white text-xs text-center truncate">{movie.title}</p>
+                                        <p className="text-white text-xs text-center truncate">{movie.title}</p>
+                                    </div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
 
-                    <div className="text-center mt-6">
-                        <button className="px-6 py-2 border border-imdb-yellow text-imdb-yellow rounded hover:bg-imdb-yellow hover:text-slate-900 transition-colors">
-                            {t('profile.browseAllUpcomingReleases')}
-                        </button>
-                    </div>
+                            <div className="text-center">
+                                <button onClick={() => navigate('/search')} className="px-6 py-2 border border-imdb-yellow text-imdb-yellow rounded hover:bg-imdb-yellow hover:text-slate-900 transition-colors">
+                                    {t('profile.browseAllUpcomingReleases')}
+                                </button>
+                            </div>
+                        </>
+                    )}
                 </section>
 
                 {/* Lists Section */}

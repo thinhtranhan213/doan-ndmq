@@ -14,15 +14,24 @@ import EditProfile from './pages/EditProfile/EditProfile';
 import Layout from './components/Layout/Layout';
 import ScrollToTop from './components/ScrollToTop/ScrollToTop';
 import { useAuthStore } from './store/authStore';
+import { useWatchlistStore } from './store/watchlistStore';
 
 const AppRoutes: React.FC = () => {
   const location = useLocation();
   const { initializeAuth, isAuthenticated } = useAuthStore();
+  const { initializeWatchlist } = useWatchlistStore();
 
   // Initialize auth state on app mount
   useEffect(() => {
     initializeAuth();
   }, [initializeAuth]);
+
+  // Initialize watchlist when user is authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      initializeWatchlist();
+    }
+  }, [isAuthenticated, initializeWatchlist]);
 
   // Don't show Navbar on login/signup/forgot-password/login-success page
   const isAuthPage =
@@ -30,11 +39,6 @@ const AppRoutes: React.FC = () => {
     location.pathname === '/signup' ||
     location.pathname === '/forgot-password' ||
     location.pathname === '/login-success';
-
-  // Redirect to login if not authenticated (except on auth pages)
-  if (!isAuthenticated && !isAuthPage) {
-    return <Navigate to="/login" replace />;
-  }
 
   // Redirect to home if authenticated and trying to access auth pages
   if (isAuthenticated && isAuthPage) {
@@ -46,14 +50,19 @@ const AppRoutes: React.FC = () => {
       <ScrollToTop />
       {!isAuthPage && <Navbar />}
       <Routes>
-        {/* Temporarily allow all routes */}
         <Route path="/" element={<Layout><Home /></Layout>} />
         <Route path="/login" element={<Login />} />
         <Route path="/login-success" element={<LoginSuccess />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/profile" element={<Layout><Profile /></Layout>} />
-        <Route path="/edit-profile" element={<Layout><EditProfile /></Layout>} />
+        <Route
+          path="/profile"
+          element={isAuthenticated ? <Layout><Profile /></Layout> : <Navigate to="/login" replace />}
+        />
+        <Route
+          path="/edit-profile"
+          element={isAuthenticated ? <Layout><EditProfile /></Layout> : <Navigate to="/login" replace />}
+        />
         <Route path="/genre/:genreId" element={<Layout><GenrePage /></Layout>} />
         <Route path="/movie/:id" element={<Layout><MovieDetail /></Layout>} />
         <Route path="/search" element={<Layout><Search /></Layout>} />

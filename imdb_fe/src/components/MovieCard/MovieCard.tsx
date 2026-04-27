@@ -1,21 +1,51 @@
 
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Movie } from '../../types/movie.types';
 import { getImageUrl, IMAGE_SIZES } from '../../utils/constants';
+import { useAuthStore } from '../../store/authStore';
+import { useWatchlistStore } from '../../store/watchlistStore';
 
 interface MovieCardProps {
     movie: Movie;
 }
 
 const MovieCard: React.FC<MovieCardProps> = ({ movie }) => {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const imageUrl = getImageUrl(movie.poster_path, IMAGE_SIZES.POSTER_MEDIUM);
+    const { isAuthenticated } = useAuthStore();
+    const { toggleMovieInWatchlist, loading, watchlistMovieIds } = useWatchlistStore();
+    const [isInList, setIsInList] = useState(false);
+    const [isHovering, setIsHovering] = useState(false);
+
+    // Subscribe to watchlist changes
+    useEffect(() => {
+        setIsInList(watchlistMovieIds.has(movie.id));
+    }, [movie.id, watchlistMovieIds]);
+
+    const handleWatchlistClick = useCallback(async (e: React.MouseEvent) => {
+        e.stopPropagation();
+
+        if (!isAuthenticated) {
+            navigate('/login');
+            return;
+        }
+
+        try {
+            await toggleMovieInWatchlist(movie.id);
+        } catch (error) {
+            console.error('Error toggling watchlist:', error);
+        }
+    }, [movie.id, isAuthenticated, navigate, toggleMovieInWatchlist]);
 
     return (
         <div
             onClick={() => navigate(`/movie/${movie.id}`)}
             className="group cursor-pointer w-full max-w-[250px]"
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => setIsHovering(false)}
         >
             {/* Background Image Container */}
             <div
@@ -24,6 +54,25 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie }) => {
             >
                 {/* Dark Gradient Overlay - Chỉ hiển thị khi hover */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg pointer-events-none z-10"></div>
+
+                {/* Watchlist Button - Hiển thị khi user đăng nhập và hover */}
+                {isAuthenticated && isHovering && (
+                    <button
+                        onClick={handleWatchlistClick}
+                        disabled={loading}
+                        className={`absolute top-2 right-2 z-30 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${isInList
+                            ? 'bg-red-500 text-white hover:bg-red-600'
+                            : 'bg-gray-700/80 text-white hover:bg-gray-600'
+                            } disabled:opacity-50 disabled:cursor-not-allowed`}
+                        title={isInList ? t('movies.removeFromWatchlist') : t('movies.addToWatchlist')}
+                    >
+                        {loading ? (
+                            <span className="animate-spin">⌛</span>
+                        ) : (
+                            <span className="text-lg">{isInList ? '❤️' : '🤍'}</span>
+                        )}
+                    </button>
+                )}
 
                 {/* Movie Info - Đè lên ảnh, chỉ hiển thị khi hover */}
                 <div className="absolute bottom-0 left-0 right-0 p-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">

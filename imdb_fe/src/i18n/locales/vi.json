@@ -5,6 +5,7 @@
         "profile": "Hồ Sơ",
         "logout": "Đăng Xuất",
         "login": "Đăng Nhập",
+        "signup": "Đăng Ký",
         "search": "Tìm kiếm phim...",
         "changePassword": "Đổi Mật Khẩu"
     },
@@ -122,6 +123,7 @@
         "cast": "Diễn Viên",
         "videos": "Video",
         "noMoviesFound": "Không tìm thấy phim",
+        "noMoviesExist": "Không tồn tại bộ phim nào",
         "loadMore": "Xem Thêm",
         "trending": "Đang Thịnh Hành",
         "popular": "Phổ Biến",
@@ -161,7 +163,20 @@
         "recommendations": "Gợi Ý",
         "reviews": "Đánh giá của người dùng",
         "failedSubmitReview": "Không thể gửi đánh giá",
-        "movieNotFound": "Không tìm thấy phim"
+        "movieNotFound": "Không tìm thấy phim",
+        "filter": "Lọc",
+        "year": "Năm",
+        "country": "Quốc Gia",
+        "allYears": "Tất cả năm",
+        "allCountries": "Tất cả quốc gia",
+        "apply": "Áp Dụng",
+        "reset": "Đặt Lại",
+        "loading": "Đang Tải...",
+        "addToWatchlist": "Thêm vào yêu thích",
+        "addedToWatchlist": "Đã thêm vào yêu thích",
+        "removeFromWatchlist": "Bỏ khỏi yêu thích",
+        "addToWatchlistFailed": "Không thể thêm vào yêu thích",
+        "loginToAddWatchlist": "Đăng nhập để thêm vào yêu thích"
     },
     "profile": {
         "profile": "Hồ Sơ Của Tôi",

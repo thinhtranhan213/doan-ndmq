@@ -3,7 +3,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SearchBar from '../SearchBar/SearchBar';
-import LanguageSwitcher from '../LanguageSwitcher/LanguageSwitcher';
 import { useAuthStore } from '../../store/authStore';
 
 interface Genre {
@@ -159,13 +158,9 @@ const Navbar: React.FC = () => {
                         <SearchBar />
                     </div>
 
-                    {/* Language Switcher */}
-                    <div className="ml-4">
-                        <LanguageSwitcher />
-                    </div>
-
-                    {/* User Account Dropdown */}
-                    {user && (
+                    {/* User Account Dropdown or Login/Signup Buttons */}
+                    {user ? (
+                        // Authenticated: Show user profile dropdown
                         <div className="relative ml-4" ref={userDropdownRef}>
                             <button
                                 onClick={toggleUserDropdown}
@@ -245,6 +240,22 @@ const Navbar: React.FC = () => {
                                     </div>
                                 </div>
                             )}
+                        </div>
+                    ) : (
+                        // Not authenticated: Show login and signup buttons
+                        <div className="flex items-center gap-2 ml-4">
+                            <Link
+                                to="/login"
+                                className="px-4 py-2 text-white hover:text-imdb-yellow transition font-medium"
+                            >
+                                {t('navbar.login')}
+                            </Link>
+                            <Link
+                                to="/signup"
+                                className="px-4 py-2 bg-imdb-yellow text-slate-900 hover:bg-yellow-400 transition font-semibold rounded"
+                            >
+                                {t('navbar.signup')}
+                            </Link>
                         </div>
                     )}
                 </div>

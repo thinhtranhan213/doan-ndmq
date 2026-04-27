@@ -168,8 +168,7 @@ public class MovieService implements IMovieService {
                     uri,
                     HttpMethod.GET,
                     createAuthHeaders(),
-                    Map.class
-            );
+                    Map.class);
 
             Map body = response.getBody();
 
@@ -178,6 +177,46 @@ public class MovieService implements IMovieService {
         } catch (Exception e) {
             log.error("Error fetching movie detail", e);
             throw new RuntimeException("Failed to fetch movie detail", e);
+        }
+    }
+
+    @Override
+    public MovieApiResponse filterMovies(String genreIds, Integer year, String country, Integer page) {
+        try {
+            String url = tmdbBaseUrl + "/discover/movie";
+            UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url)
+                    .queryParam("language", "en-US")
+                    .queryParam("page", page != null ? page : 1)
+                    .queryParam("sort_by", "popularity.desc");
+
+            // Add genre filter if provided
+            if (genreIds != null && !genreIds.isEmpty()) {
+                builder.queryParam("with_genres", genreIds);
+            }
+
+            // Add year filter if provided
+            if (year != null) {
+                builder.queryParam("primary_release_year", year);
+            }
+
+            // Add country filter if provided (with_origin_country for production country)
+            if (country != null && !country.isEmpty()) {
+                builder.queryParam("with_origin_country", country);
+            }
+
+            URI uri = builder.build().toUri();
+
+            log.info("Filtering movies from TMDB with genres={}, year={}, country={}: {}", genreIds, year, country,
+                    uri);
+            ResponseEntity<MovieApiResponse> response = restTemplate.exchange(
+                    uri,
+                    HttpMethod.GET,
+                    createAuthHeaders(),
+                    MovieApiResponse.class);
+            return response.getBody();
+        } catch (Exception e) {
+            log.error("Error filtering movies", e);
+            throw new RuntimeException("Failed to filter movies", e);
         }
     }
 

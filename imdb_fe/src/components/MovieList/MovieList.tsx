@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import MovieCard from '../MovieCard/MovieCard';
 import { Movie } from '../../types/movie.types';
 
@@ -8,6 +9,8 @@ interface MovieListProps {
 }
 
 const MovieList: React.FC<MovieListProps> = ({ movies, loading }) => {
+    const { t } = useTranslation();
+
     if (loading) {
         return (
             <div className="flex justify-center items-center h-64">
@@ -19,7 +22,7 @@ const MovieList: React.FC<MovieListProps> = ({ movies, loading }) => {
     if (movies.length === 0) {
         return (
             <div className="text-center text-gray-400 py-12">
-                <p className="text-xl">No movies found</p>
+                <p className="text-xl">{t('movies.noMoviesExist')}</p>
             </div>
         );
     }

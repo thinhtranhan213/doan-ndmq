@@ -113,7 +113,15 @@ const Login: React.FC = () => {
 
                 {/* Header */}
                 <div className="text-center mb-8">
-                    <div className="w-12 h-12 mx-auto mb-4 rounded-full border-4 border-gray-300 border-t-blue-500 animate-spin"></div>
+                    <button
+                        onClick={() => navigate('/')}
+                        className="mx-auto mb-4 block cursor-pointer hover:scale-110 transition-transform duration-300"
+                        title="Về trang chủ"
+                    >
+                        <div className="text-4xl font-black text-yellow-500">
+                            IMDb
+                        </div>
+                    </button>
                     <h1 className="text-2xl font-bold text-gray-800">{t('auth.login')}</h1>
                     <p className="text-sm text-gray-600 mt-2">
                         {t('auth.dontHaveAccount')}{' '}

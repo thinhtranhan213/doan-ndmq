@@ -5,6 +5,7 @@
         "profile": "Profile",
         "logout": "Logout",
         "login": "Login",
+        "signup": "Sign Up",
         "search": "Search movies...",
         "changePassword": "Change Password"
     },
@@ -122,6 +123,7 @@
         "cast": "Cast",
         "videos": "Videos",
         "noMoviesFound": "No movies found",
+        "noMoviesExist": "No movies exist",
         "loadMore": "Load More",
         "trending": "Trending",
         "popular": "Popular",
@@ -161,7 +163,20 @@
         "recommendations": "Recommendations",
         "reviews": "User Reviews",
         "failedSubmitReview": "Failed to submit review",
-        "movieNotFound": "Movie not found"
+        "movieNotFound": "Movie not found",
+        "filter": "Filter",
+        "year": "Year",
+        "country": "Country",
+        "allYears": "All Years",
+        "allCountries": "All Countries",
+        "apply": "Apply",
+        "reset": "Reset",
+        "loading": "Loading...",
+        "addToWatchlist": "Add to Watchlist",
+        "addedToWatchlist": "Added to Watchlist",
+        "removeFromWatchlist": "Remove from Watchlist",
+        "addToWatchlistFailed": "Failed to add to watchlist",
+        "loginToAddWatchlist": "Login to add to watchlist"
     },
     "profile": {
         "profile": "My Profile",

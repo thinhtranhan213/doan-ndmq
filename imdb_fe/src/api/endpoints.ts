@@ -165,6 +165,25 @@ export const searchMoviesFromBackend = async (query: string, page: number = 1): 
     return response.data;
 };
 
+// Filter movies by genre, year, and country from backend
+export const filterMoviesFromBackend = async (
+    genreIds?: string,
+    year?: number,
+    country?: string,
+    page: number = 1
+): Promise<ApiResponse<Movie>> => {
+    const params: any = { page };
+
+    if (genreIds) params.genreIds = genreIds;
+    if (year) params.year = year;
+    if (country) params.country = country;
+
+    const response = await backendApi.get('/public/movies/filter', {
+        params,
+    });
+    return response.data;
+};
+
 // ======================================
 // Backend API Endpoints (Comment & Rate)
 // Lấy review của phim (comment và rate từ phía DB và TMDB)
@@ -210,14 +229,17 @@ export const getMyReviews = async () => {
 // Tạo playlist riêng của bản thân bằng nút [Add to playlist] ở trang MovieDetail
 // ======================================
 export const createPlaylist = (name: string) =>
-    backendApi.post('/playlists', { name });
+    backendApi.post('/playlists', { name }).then(res => res.data);
 
 export const toggleMovieInPlaylist = (playlistId: number, movieId: number) =>
     backendApi.post(`/playlists/${playlistId}/toggle`, null, {
         params: { movieId }
-    });
+    }).then(res => res.data);
 
 export const getPlaylists = (movieId: number) =>
     backendApi.get('/playlists', {
         params: { movieId }
-    });
+    }).then(res => res.data);
+
+export const getPlaylistMovies = (playlistId: number) =>
+    backendApi.get(`/playlists/${playlistId}/movies`).then(res => res.data);
