@@ -25,6 +25,13 @@ public class Movie extends AuditableEntity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    private Long tmdbId;
+
+    private String posterPath;
+
+    @Enumerated(EnumType.STRING)
+    private MovieStatus status = MovieStatus.PUBLIC;
+
     private Double averageRating;
     private Long voteCount;
 

@@ -27,6 +27,8 @@ public class Review {
 
     private LocalDateTime createdAt;
 
+    private Boolean hidden = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;

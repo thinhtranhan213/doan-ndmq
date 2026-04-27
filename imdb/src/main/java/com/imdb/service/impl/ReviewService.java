@@ -151,41 +151,6 @@ public class ReviewService implements IReviewService {
         return mapToTmdbFormatSafe(saved);
     }
 
-    @Override
-    public List<ReviewResponse> getMyRecentReviews(User user, int limit) {
-//        Pageable pageable = PageRequest.of(0, limit, Sort.by("createdAt").descending());
-//
-//        List<Review> reviews = reviewRepository.findByUser(user, pageable);
-//
-//        if (reviews.isEmpty()) return List.of();
-//
-//        List<Long> movieIds = reviews.stream()
-//                .map(Review::getMovieId)
-//                .distinct()
-//                .toList();
-//
-//        Map<Long, MovieResult> movieMap = movieIds.stream()
-//                .collect(Collectors.toMap(
-//                        id -> id,
-//                        movieService::getMovieDetail
-//                ));
-//
-//        return reviews.stream().map(review -> {
-//            MovieResult movie = movieMap.get(review.getMovieId());
-//
-//            return ReviewResponse.builder()
-//                    .id(review.getId())
-//                    .movieId(review.getMovieId())
-//                    .movieTitle(movie != null ? movie.getTitle() : "Unknown")
-//                    .posterPath(movie != null ? movie.getPoster_path() : null)
-//                    .rating(review.getRating())
-//                    .content(review.getContent())
-//                    .preview(buildPreview(review.getContent()))
-//                    .createdAt(review.getCreatedAt())
-//                    .build();
-//        }).toList();
-        return new ArrayList<>();
-    }
 
 
     // ======================================================

@@ -14,42 +14,40 @@ import EditProfile from './pages/EditProfile/EditProfile';
 import Layout from './components/Layout/Layout';
 import ScrollToTop from './components/ScrollToTop/ScrollToTop';
 import { useAuthStore } from './store/authStore';
-import { useWatchlistStore } from './store/watchlistStore';
+import { useBlacklistStore } from './store/blacklistStore';
+
+// Admin
+import AdminRoute from './components/Admin/AdminRoute';
+import AdminLayout from './layouts/AdminLayout';
+import AdminDashboard from './pages/Admin/AdminDashboard';
+import UserManagement from './pages/Admin/UserManagement';
+import ViolationManagement from './pages/Admin/ViolationManagement';
+import FilmManagement from './pages/Admin/FilmManagement';
+import ReviewManagement from './pages/Admin/ReviewManagement';
+import SystemReport from './pages/Admin/SystemReport';
+
+const AUTH_PATHS = ['/login', '/signup', '/forgot-password', '/login-success'];
 
 const AppRoutes: React.FC = () => {
   const location = useLocation();
   const { initializeAuth, isAuthenticated } = useAuthStore();
-  const { initializeWatchlist } = useWatchlistStore();
+  const fetchBlacklist = useBlacklistStore((s) => s.fetchBlacklist);
 
-  // Initialize auth state on app mount
-  useEffect(() => {
-    initializeAuth();
-  }, [initializeAuth]);
+  useEffect(() => { initializeAuth(); }, [initializeAuth]);
+  useEffect(() => { fetchBlacklist(); }, [fetchBlacklist]);
 
-  // Initialize watchlist when user is authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      initializeWatchlist();
-    }
-  }, [isAuthenticated, initializeWatchlist]);
+  const isAuthPage = AUTH_PATHS.includes(location.pathname);
+  const isAdminPage = location.pathname.startsWith('/admin');
 
-  // Don't show Navbar on login/signup/forgot-password/login-success page
-  const isAuthPage =
-    location.pathname === '/login' ||
-    location.pathname === '/signup' ||
-    location.pathname === '/forgot-password' ||
-    location.pathname === '/login-success';
-
-  // Redirect to home if authenticated and trying to access auth pages
-  if (isAuthenticated && isAuthPage) {
-    return <Navigate to="/" replace />;
-  }
+  if (!isAuthenticated && !isAuthPage) return <Navigate to="/login" replace />;
+  if (isAuthenticated && isAuthPage) return <Navigate to="/" replace />;
 
   return (
     <>
       <ScrollToTop />
       {!isAuthPage && <Navbar />}
       <Routes>
+        {/* Temporarily allow all routes */}
         <Route path="/" element={<Layout><Home /></Layout>} />
         <Route path="/login" element={<Login />} />
         <Route path="/login-success" element={<LoginSuccess />} />
@@ -63,6 +61,7 @@ const AppRoutes: React.FC = () => {
           path="/edit-profile"
           element={isAuthenticated ? <Layout><EditProfile /></Layout> : <Navigate to="/login" replace />}
         />
+        <Route path="/edit-profile" element={<Layout><EditProfile /></Layout>} />
         <Route path="/genre/:genreId" element={<Layout><GenrePage /></Layout>} />
         <Route path="/movie/:id" element={<Layout><MovieDetail /></Layout>} />
         <Route path="/search" element={<Layout><Search /></Layout>} />
@@ -71,12 +70,10 @@ const AppRoutes: React.FC = () => {
   );
 };
 
-const App: React.FC = () => {
-  return (
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
-  );
-};
+const App: React.FC = () => (
+  <BrowserRouter>
+    <AppRoutes />
+  </BrowserRouter>
+);
 
 export default App;

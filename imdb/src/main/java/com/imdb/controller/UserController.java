@@ -64,17 +64,5 @@ public class UserController {
         return ResponseEntity.ok(new MessageResponse("Profile updated successfully"));
     }
 
-    @GetMapping("/me/reviews")
-    public ResponseEntity<?> getMyReviews(
-            @RequestParam(defaultValue = "3") int limit,
-            Authentication authentication
-    ) {
-        User user = (User) authentication.getPrincipal();
-
-        List<ReviewResponse> reviews = reviewService.getMyRecentReviews(user);
-
-        return ResponseEntity.ok(Map.of("reviews", reviews));
-    }
-
 
 }

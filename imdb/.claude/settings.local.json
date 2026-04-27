@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep *)",
+      "Bash(npx --prefix \"D:/stash/doan-ndmq/imdb_fe\" tsc --noEmit --project \"D:/stash/doan-ndmq/imdb_fe/tsconfig.json\")"
+    ]
+  }
+}

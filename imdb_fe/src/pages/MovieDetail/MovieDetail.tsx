@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMovieDetail } from '../../hooks/useMovieDetail';
+import { useBlacklistStore } from '../../store/blacklistStore';
 import MovieCard from '../../components/MovieCard/MovieCard';
 import { getImageUrl, IMAGE_SIZES, formatDate, formatRuntime, formatCurrency } from '../../utils/constants';
 import { useState } from 'react';
@@ -13,6 +14,7 @@ import TrailerModal from './TrailerModal';
 const MovieDetail: React.FC = () => {
     const { t } = useTranslation();
     const { id } = useParams<{ id: string }>();
+    const isBlacklisted = useBlacklistStore((s) => s.isBlacklisted);
     const { movie, credits, similarMovies, recommendations, reviews, loading, error, setReviews } = useMovieDetail(Number(id));
     const [showAllCast, setShowAllCast] = useState(false);
 
@@ -59,7 +61,7 @@ const MovieDetail: React.FC = () => {
         );
     }
 
-    if (error || !movie) {
+    if (error || !movie || isBlacklisted(Number(id))) {
         return (
             <div className="container mx-auto px-4 py-8">
                 <div className="bg-red-500 text-white p-4 rounded-lg">

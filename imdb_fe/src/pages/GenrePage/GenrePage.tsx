@@ -4,6 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getMoviesByGenreFromBackend } from '../../api/endpoints';
 import { Movie } from '../../types/movie.types';
+import { useBlacklistStore } from '../../store/blacklistStore';
 import MovieCard from '../../components/MovieCard/MovieCard';
 import Pagination from '../../components/Pagination/Pagination';
 import Footer from '../../components/Footer/Footer';
@@ -29,6 +30,7 @@ const GENRES: Genre[] = [
 const GenrePage: React.FC = () => {
     const { t } = useTranslation();
     const { genreId } = useParams<{ genreId: string }>();
+    const filterMovies = useBlacklistStore((s) => s.filterMovies);
     const [movies, setMovies] = useState<Movie[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -62,7 +64,7 @@ const GenrePage: React.FC = () => {
             setLoading(true);
             setError(null);
             const response = await getMoviesByGenreFromBackend(Number(genreId), page);
-            setMovies(response.results);
+            setMovies(filterMovies(response.results));
             setTotalPages(Math.min(response.total_pages, 500)); // TMDb giới hạn 500 trang
         } catch (err) {
             console.error('Error fetching movies:', err);

@@ -2,8 +2,10 @@
 import { useState, useEffect } from 'react';
 import { getMovieDetails, getMovieCredits, getSimilarMovies, getMovieRecommendations, getMovieReviews } from '../api/endpoints';
 import { MovieDetail, Credits, Movie } from '../types/movie.types';
+import { useBlacklistStore } from '../store/blacklistStore';
 
 export const useMovieDetail = (movieId: number) => {
+    const filterMovies = useBlacklistStore((s) => s.filterMovies);
     const [movie, setMovie] = useState<MovieDetail | null>(null);
     const [credits, setCredits] = useState<Credits | null>(null);
     const [similarMovies, setSimilarMovies] = useState<Movie[]>([]);
@@ -31,8 +33,8 @@ export const useMovieDetail = (movieId: number) => {
 
             setMovie(movieData);
             setCredits(creditsData);
-            setSimilarMovies(similarData.results.slice(0, 10));
-            setRecommendations(recommendationsData.results.slice(0, 10));
+            setSimilarMovies(filterMovies(similarData.results).slice(0, 10));
+            setRecommendations(filterMovies(recommendationsData.results).slice(0, 10));
             setReviews(reviewsData.results.slice(0, 5));
         } catch (err) {
             setError('Failed to fetch movie details.');

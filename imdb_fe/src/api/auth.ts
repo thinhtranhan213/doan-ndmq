@@ -167,6 +167,7 @@ export interface User {
     userName: string;
     firstName: string;
     lastName: string;
+    roles: string[];
 }
 
 export interface LoginResponse {

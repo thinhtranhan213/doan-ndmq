@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { getTrendingMoviesFromBackend, getTopRatedMoviesFromBackend, getPopularMoviesFromBackend } from '../api/endpoints';
 import { Movie } from '../types/movie.types';
+import { useBlacklistStore } from '../store/blacklistStore';
 
 interface MovieSections {
     trending: Movie[];
@@ -12,6 +13,7 @@ interface MovieSections {
 }
 
 export const useMultipleMovieSections = () => {
+    const filterMovies = useBlacklistStore((s) => s.filterMovies);
     const [sections, setSections] = useState<MovieSections>({
         trending: [],
         topRated: [],
@@ -28,7 +30,6 @@ export const useMultipleMovieSections = () => {
         try {
             setSections((prev) => ({ ...prev, loading: true, error: null }));
 
-            // Fetch tất cả sections song song từ backend
             const [trendingData, topRatedData, popularData] = await Promise.all([
                 getTrendingMoviesFromBackend('week'),
                 getTopRatedMoviesFromBackend(1),
@@ -36,9 +37,9 @@ export const useMultipleMovieSections = () => {
             ]);
 
             setSections({
-                trending: trendingData.results, // Top 10 trending
-                topRated: topRatedData.results, // Top 10 rated
-                popular: popularData.results, // Top 10 popular
+                trending: filterMovies(trendingData.results),
+                topRated: filterMovies(topRatedData.results),
+                popular:  filterMovies(popularData.results),
                 loading: false,
                 error: null,
             });
