@@ -45,9 +45,9 @@ const AppRoutes: React.FC = () => {
   return (
     <>
       <ScrollToTop />
-      {!isAuthPage && <Navbar />}
+      {!isAuthPage && !isAdminPage && <Navbar />}
       <Routes>
-        {/* Temporarily allow all routes */}
+        {/* ── Public / Main ── */}
         <Route path="/" element={<Layout><Home /></Layout>} />
         <Route path="/login" element={<Login />} />
         <Route path="/login-success" element={<LoginSuccess />} />
@@ -61,10 +61,27 @@ const AppRoutes: React.FC = () => {
           path="/edit-profile"
           element={isAuthenticated ? <Layout><EditProfile /></Layout> : <Navigate to="/login" replace />}
         />
-        <Route path="/edit-profile" element={<Layout><EditProfile /></Layout>} />
         <Route path="/genre/:genreId" element={<Layout><GenrePage /></Layout>} />
         <Route path="/movie/:id" element={<Layout><MovieDetail /></Layout>} />
         <Route path="/search" element={<Layout><Search /></Layout>} />
+
+        {/* ── Admin (isolated layout, role-guarded) ── */}
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminLayout />
+            </AdminRoute>
+          }
+        >
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard"  element={<AdminDashboard />} />
+          <Route path="users"      element={<UserManagement />} />
+          <Route path="violations" element={<ViolationManagement />} />
+          <Route path="films"      element={<FilmManagement />} />
+          <Route path="reviews"    element={<ReviewManagement />} />
+          <Route path="reports"    element={<SystemReport />} />
+        </Route>
       </Routes>
     </>
   );

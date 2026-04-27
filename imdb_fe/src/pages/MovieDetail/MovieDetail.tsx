@@ -1,57 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMovieDetail } from '../../hooks/useMovieDetail';
 import { useBlacklistStore } from '../../store/blacklistStore';
 import MovieCard from '../../components/MovieCard/MovieCard';
 import { getImageUrl, IMAGE_SIZES, formatDate, formatRuntime, formatCurrency } from '../../utils/constants';
-import { useState } from 'react';
-import { createReview } from '../../api/endpoints';
 import PlaylistModal from './PlaylistModal';
 import TrailerModal from './TrailerModal';
+import ReviewSection from '../../components/Review/ReviewSection';
 
 
 const MovieDetail: React.FC = () => {
     const { t } = useTranslation();
     const { id } = useParams<{ id: string }>();
     const isBlacklisted = useBlacklistStore((s) => s.isBlacklisted);
-    const { movie, credits, similarMovies, recommendations, reviews, loading, error, setReviews } = useMovieDetail(Number(id));
+    const { movie, credits, similarMovies, recommendations, loading, error } = useMovieDetail(Number(id));
     const [showAllCast, setShowAllCast] = useState(false);
-
-    const [comment, setComment] = useState('');
-    const [rating, setRating] = useState<number>(0);
-    const [submitting, setSubmitting] = useState(false);
-    const [hoverRating, setHoverRating] = useState<number>(0);
-
-
     const [showModal, setShowModal] = useState(false);
-
     const [showTrailer, setShowTrailer] = useState(false);
-
-    const handleSubmitReview = async () => {
-        if (!comment || rating === 0) return;
-
-        try {
-            setSubmitting(true);
-
-            const newReview = await createReview(Number(id), {
-                comment,
-                rating
-            });
-
-            // 🔥 add vào list hiện tại
-            setReviews((prev) => [newReview, ...prev]);
-
-            setComment('');
-            setRating(0);
-
-        } catch (err) {
-            console.error(err);
-            alert("Failed to submit review");
-        } finally {
-            setSubmitting(false);
-        }
-    };
 
     if (loading) {
         return (
@@ -286,144 +252,8 @@ const MovieDetail: React.FC = () => {
                                 </div>
                             )}
 
-                            {/* User Comment Section */}
-                            <div className="mb-12 bg-slate-800 p-6 rounded-lg">
-                                <h2 className="text-2xl font-bold text-white mb-4">📝 Ý kiến của bạn</h2>
-
-                                {/* Rating */}
-                                <div className="mb-4">
-                                    <p className="text-gray-400 mb-2">Chấm điểm cho phim</p>
-                                    <div className="flex gap-2 flex-wrap">
-                                        {[...Array(10)].map((_, i) => {
-                                            const value = i + 1;
-
-                                            // 🔥 hover ưu tiên, nếu không thì dùng rating
-                                            const activeValue = hoverRating || rating;
-
-                                            const isActive = value <= activeValue;
-
-                                            return (
-                                                <button
-                                                    key={value}
-                                                    onClick={() => setRating(value)}
-                                                    onMouseEnter={() => setHoverRating(value)}
-                                                    onMouseLeave={() => setHoverRating(0)}
-                                                    className={`
-                                                    px-3 py-1 rounded font-semibold
-                                                    transition-all duration-200
-                                                    cursor-pointer border
-                                                    ${isActive
-                                                            ? 'bg-yellow-400 text-black border-yellow-400 shadow-md scale-105'
-                                                            : 'bg-gray-700 text-gray-400 border-gray-600'
-                                                        }
-                                                `}
-                                                >
-                                                    {value}
-                                                </button>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-
-                                {/* Comment Input */}
-                                <textarea
-                                    value={comment}
-                                    onChange={(e) => setComment(e.target.value)}
-                                    placeholder="Cảm nghĩ của bạn về bộ phim..."
-                                    className="w-full p-3 rounded bg-imdb-gray text-white mb-4"
-                                    rows={4}
-                                />
-
-                                {/* Submit */}
-                                <button
-                                    onClick={handleSubmitReview}
-                                    disabled={submitting}
-                                    className="
-                                    bg-imdb-yellow text-gray-400 font-bold
-                                    px-5 py-2 rounded
-                                    shadow-md
-                                    transition-all duration-200
-                                    cursor-pointer
-                                    hover:bg-yellow-400 hover:shadow-lg hover:scale-105
-                                    hover:text-black
-                                    active:scale-95
-                                    disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
-                                "
-                                >
-                                    {submitting ? "Đang gửi..." : "Gửi"}
-                                </button>
-                            </div>
-
-                            {/* Reviews Section */}
-                            <div className="mb-12">
-                                <h2 className="text-3xl font-bold text-white mb-6">💬 {t('movies.reviews')}</h2>
-                                {reviews.length > 0 ? (
-                                    <div>
-                                        {reviews.map((review) => {
-                                            const avatarUrl = review.author_details?.avatar_path
-                                                ? review.author_details.avatar_path.startsWith('/https')
-                                                    ? review.author_details.avatar_path.slice(1)
-                                                    : getImageUrl(review.author_details.avatar_path)
-                                                : null
-
-                                            return (
-                                                <div
-                                                    key={review.id}
-                                                    className="relative mb-12 bg-slate-800 p-4 pl-14 rounded-lg"
-                                                >
-                                                    {/* Avatar */}
-                                                    <div className="absolute -top-4 -left-4">
-                                                        {avatarUrl ? (
-                                                            <img
-                                                                src={getImageUrl(avatarUrl)}
-                                                                alt={review.author}
-                                                                className="w-12 h-12 rounded-full border-2 border-imdb-dark object-cover bg-gray-700"
-                                                            />
-                                                        ) : (
-                                                            <div className="w-12 h-12 rounded-full bg-imdb-gray border-2 border-imdb-dark flex items-center justify-center text-white font-bold">
-                                                                {review.author.charAt(0).toUpperCase()}
-                                                            </div>
-                                                        )}
-                                                    </div>
-
-                                                    {/* Header */}
-                                                    <div className="flex items-start justify-between mb-2">
-                                                        <div>
-                                                            <p className="text-white font-semibold">{review.author}</p>
-                                                            <p className="text-gray-400 text-sm">
-                                                                {new Date(review.created_at).toLocaleDateString()}
-                                                            </p>
-                                                        </div>
-
-                                                        {review.author_details?.rating !== null && review.author_details?.rating !== undefined && (
-                                                            <div className="bg-imdb-yellow text-white px-2 py-1 rounded font-bold text-sm">
-                                                                ⭐ {review.author_details.rating}/10
-                                                            </div>
-                                                        )}
-                                                    </div>
-
-                                                    {/* Content */}
-                                                    <p className="text-gray-300 line-clamp-4">{review.content}</p>
-
-                                                    {/* Link */}
-                                                    <a
-                                                        href={review.url}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="text-imdb-yellow hover:underline text-sm mt-2 inline-block"
-                                                    >
-                                                        {t('movies.readFullReview')} →
-                                                    </a>
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                ) : (
-                                    <div className="bg-slate-800 rounded-lg p-8 text-center text-slate-400">
-                                        {t('profile.noReviewsYet')}
-                                    </div>
-                                )}
-                            </div>
+                            {/* Review & Comment System */}
+                            <ReviewSection filmId={Number(id)} />
 
 
                             {/* Similar Movies */}

@@ -77,6 +77,8 @@ public class SecurityConfiguration {
                                 "/v3/api-docs/**"
                         ).permitAll()
                         .requestMatchers("/api/public/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.GET,
+                                "/api/reviews/**", "/api/comments/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

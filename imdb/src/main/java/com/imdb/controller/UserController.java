@@ -64,5 +64,4 @@ public class UserController {
         return ResponseEntity.ok(new MessageResponse("Profile updated successfully"));
     }
 
-
 }

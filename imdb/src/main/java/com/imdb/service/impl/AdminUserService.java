@@ -70,7 +70,7 @@ public class AdminUserService implements IAdminUserService {
                 admin, id, user.getEmail(), user.getStatus(), newStatus, request.reason(), LocalDateTime.now());
 
         user.setStatus(newStatus);
-        user.setEnabled(newStatus == UserStatus.ACTIVE);
+        user.setEnabled(newStatus != UserStatus.BANNED);
         userRepository.save(user);
     }
 

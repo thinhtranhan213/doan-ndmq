@@ -112,6 +112,7 @@ const ViolationManagement: React.FC = () => {
                             <thead className="bg-slate-800 text-gray-400 uppercase text-xs">
                                 <tr>
                                     <th className="px-4 py-3 text-left">ID</th>
+                                    <th className="px-4 py-3 text-left">Loại</th>
                                     <th className="px-4 py-3 text-left">Người báo cáo</th>
                                     <th className="px-4 py-3 text-left">Người bị báo cáo</th>
                                     <th className="px-4 py-3 text-left">Lý do</th>
@@ -124,6 +125,11 @@ const ViolationManagement: React.FC = () => {
                                 {(pagedData?.data ?? []).map((v) => (
                                     <tr key={v.id} className="bg-slate-900 hover:bg-slate-800/60 transition-colors">
                                         <td className="px-4 py-3 text-gray-400">{v.id}</td>
+                                        <td className="px-4 py-3">
+                                            <span className={`text-xs px-2 py-0.5 rounded font-medium ${v.targetType === 'REVIEW' ? 'bg-blue-600/20 text-blue-400' : 'bg-purple-600/20 text-purple-400'}`}>
+                                                {v.targetType === 'REVIEW' ? 'Đánh giá' : 'Bình luận'}
+                                            </span>
+                                        </td>
                                         <td className="px-4 py-3 text-gray-300">{v.reporterEmail}</td>
                                         <td className="px-4 py-3 text-gray-300">{v.targetUserEmail}</td>
                                         <td className="px-4 py-3 text-gray-300 max-w-[200px] truncate">{v.reason}</td>
@@ -154,7 +160,7 @@ const ViolationManagement: React.FC = () => {
                                     </tr>
                                 ))}
                                 {(pagedData?.data ?? []).length === 0 && (
-                                    <tr><td colSpan={7} className="text-center py-12 text-gray-500">Không có báo cáo nào.</td></tr>
+                                    <tr><td colSpan={8} className="text-center py-12 text-gray-500">Không có báo cáo nào.</td></tr>
                                 )}
                             </tbody>
                         </table>

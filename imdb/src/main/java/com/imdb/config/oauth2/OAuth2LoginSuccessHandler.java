@@ -61,6 +61,15 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                     return userRepository.save(newUser);
                 });
 
+        if (Boolean.FALSE.equals(user.getEnabled())) {
+            String loginUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/login")
+                    .queryParam("error", "account_banned")
+                    .build()
+                    .toUriString();
+            response.sendRedirect(loginUrl);
+            return;
+        }
+
         String token = jwtUtils.generateJwtToken(authentication);
 
         // Use configured frontend URL (fallback to detecting from referer if available)

@@ -5,21 +5,44 @@ import type { DashboardStats, DayStat } from '../../types/admin.types';
 // ── Bar Chart ────────────────────────────────────────────────────────────────
 const BarChart: React.FC<{ data: DayStat[]; color: string; label: string }> = ({ data, color, label }) => {
     const max = Math.max(...data.map((d) => d.count), 1);
+    const allZero = data.every((d) => d.count === 0);
+
     return (
         <div className="bg-slate-900 border border-slate-700/60 rounded-xl p-4">
             <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">{label}</p>
-            <div className="flex items-end gap-1.5 h-24">
-                {data.map((d) => {
-                    const pct = Math.max((d.count / max) * 100, 3);
-                    return (
-                        <div key={d.date} className="flex-1 flex flex-col items-center gap-1 group">
-                            <span className="text-[10px] text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">{d.count}</span>
-                            <div className={`w-full rounded-t transition-all ${color}`} style={{ height: `${pct}%` }} title={`${d.date}: ${d.count}`} />
-                            <span className="text-[10px] text-gray-500">{d.date.slice(5)}</span>
-                        </div>
-                    );
-                })}
-            </div>
+            {allZero ? (
+                <div className="flex flex-col items-center justify-center gap-1" style={{ height: 80 }}>
+                    <svg className="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <span className="text-xs text-slate-500">Chưa có dữ liệu</span>
+                </div>
+            ) : (
+                <div className="w-full">
+                    <div className="relative flex gap-1.5" style={{ height: 80 }}>
+                        {data.map((d) => {
+                            const pct = Math.max((d.count / max) * 100, 3);
+                            return (
+                                <div key={d.date} className="relative flex-1 group">
+                                    <div
+                                        className={`absolute bottom-0 left-0 right-0 rounded-t transition-all ${color}`}
+                                        style={{ height: `${pct}%` }}
+                                        title={`${d.date}: ${d.count}`}
+                                    />
+                                    <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-0.5 text-[10px] text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                                        {d.count}
+                                    </span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div className="flex gap-1.5 mt-1">
+                        {data.map((d) => (
+                            <span key={d.date} className="flex-1 text-center text-[10px] text-gray-500">{d.date.slice(5)}</span>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

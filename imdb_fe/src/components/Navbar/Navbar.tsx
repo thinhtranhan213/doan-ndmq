@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SearchBar from '../SearchBar/SearchBar';
+import LanguageSwitcher from '../LanguageSwitcher/LanguageSwitcher';
 import { useAuthStore } from '../../store/authStore';
 
 interface Genre {
@@ -163,6 +164,11 @@ const Navbar: React.FC = () => {
                     {/* Search Bar */}
                     <div className="flex-1 max-w-xl ml-auto">
                         <SearchBar />
+                    </div>
+
+                    {/* Language Switcher */}
+                    <div className="ml-4">
+                        <LanguageSwitcher />
                     </div>
 
                     {/* User Account Dropdown or Login/Signup Buttons */}

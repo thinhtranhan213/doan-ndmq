@@ -249,6 +249,7 @@ export const handleOAuth2Callback = (token: string, userData?: { userName?: stri
             userName: userData.userName || userData.email,
             firstName: userData.firstName || '',
             lastName: userData.lastName || '',
+            roles: userData.roles ?? [],
         };
         localStorage.setItem('user', JSON.stringify(user));
         return {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { loginUser, loginWithGoogle } from '../../api/auth';
 import { useAuthStore } from '../../store/authStore';
@@ -8,10 +8,13 @@ import backgroundImage from '../../assets/background_login.webp';
 const Login: React.FC = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const { login, setError, setLoading } = useAuthStore();
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+
+    const oauthError = searchParams.get('error');
 
     // Form states
     const [formData, setFormData] = useState({
@@ -130,6 +133,13 @@ const Login: React.FC = () => {
                         </Link>
                     </p>
                 </div>
+
+                {/* OAuth error banner */}
+                {oauthError === 'account_banned' && (
+                    <div className="mb-4 px-4 py-3 bg-red-50 border border-red-300 rounded-lg text-red-700 text-sm text-center">
+                        Tài khoản của bạn đã bị khóa và không thể đăng nhập.
+                    </div>
+                )}
 
                 {/* Social Login Buttons */}
                 <div className="space-y-3 mb-6">

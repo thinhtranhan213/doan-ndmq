@@ -81,12 +81,13 @@ export interface FilmOverrideRequest {
     reason: string;
 }
 
-// ---- Violations ----
+// ---- Violations / Reports ----
 export type ViolationStatus = 'PENDING' | 'IGNORED' | 'RESOLVED';
 
 export interface ViolationDTO {
     id: number;
-    reviewId: number | null;
+    targetId: number;
+    targetType: 'REVIEW' | 'COMMENT';
     reporterEmail: string;
     targetUserEmail: string;
     reason: string;

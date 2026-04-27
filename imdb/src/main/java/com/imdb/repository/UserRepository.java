@@ -1,5 +1,6 @@
 package com.imdb.repository;
 
+import com.imdb.dto.projection.DayStatProjection;
 import com.imdb.entity.User;
 import com.imdb.entity.UserStatus;
 import org.springframework.data.domain.Page;
@@ -39,6 +40,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT COUNT(u) FROM User u WHERE u.createdAt >= :since")
     long countCreatedSince(@Param("since") LocalDateTime since);
 
-    @Query("SELECT DATE(u.createdAt) as day, COUNT(u) FROM User u WHERE u.createdAt >= :since GROUP BY DATE(u.createdAt) ORDER BY day")
-    List<Object[]> countGroupedByDay(@Param("since") LocalDateTime since);
+    @Query(value = "SELECT DATE(created_at) AS day, COUNT(*) AS count FROM users WHERE created_at >= :since GROUP BY day ORDER BY day", nativeQuery = true)
+    List<DayStatProjection> countGroupedByDay(@Param("since") LocalDateTime since);
 }

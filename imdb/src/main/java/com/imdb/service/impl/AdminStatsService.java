@@ -1,12 +1,13 @@
 package com.imdb.service.impl;
 
+import com.imdb.dto.projection.DayStatProjection;
 import com.imdb.dto.response.DashboardStatsResponse;
+import com.imdb.entity.ReportStatus;
 import com.imdb.entity.UserStatus;
-import com.imdb.entity.ViolationStatus;
 import com.imdb.repository.FilmOverrideRepository;
+import com.imdb.repository.ReportRepository;
 import com.imdb.repository.ReviewRepository;
 import com.imdb.repository.UserRepository;
-import com.imdb.repository.ViolationRepository;
 import com.imdb.service.IAdminStatsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class AdminStatsService implements IAdminStatsService {
 
     private final UserRepository userRepository;
     private final ReviewRepository reviewRepository;
-    private final ViolationRepository violationRepository;
+    private final ReportRepository reportRepository;
     private final FilmOverrideRepository filmOverrideRepository;
 
     @Override
@@ -37,10 +38,10 @@ public class AdminStatsService implements IAdminStatsService {
         long totalReviews      = reviewRepository.count();
         long hiddenReviews     = reviewRepository.countByHidden(true);
         long hiddenFilmsCount  = filmOverrideRepository.count();
-        long totalViolations   = violationRepository.count();
-        long pendingViolations = violationRepository.countByStatus(ViolationStatus.PENDING);
-        long ignoredViolations = violationRepository.countByStatus(ViolationStatus.IGNORED);
-        long resolvedViolations= violationRepository.countByStatus(ViolationStatus.RESOLVED);
+        long totalViolations   = reportRepository.count();
+        long pendingViolations = reportRepository.countByStatus(ReportStatus.PENDING);
+        long ignoredViolations = reportRepository.countByStatus(ReportStatus.IGNORED);
+        long resolvedViolations= reportRepository.countByStatus(ReportStatus.RESOLVED);
         long newUsersThisWeek  = userRepository.countCreatedSince(LocalDateTime.now().minusDays(7));
 
         return new DashboardStatsResponse(
@@ -51,16 +52,16 @@ public class AdminStatsService implements IAdminStatsService {
                 newUsersThisWeek,
                 buildChart(userRepository.countGroupedByDay(LocalDateTime.now().minusDays(6).toLocalDate().atStartOfDay())),
                 buildChart(reviewRepository.countGroupedByDay(LocalDateTime.now().minusDays(6).toLocalDate().atStartOfDay())),
-                buildChart(violationRepository.countGroupedByDay(LocalDateTime.now().minusDays(6).toLocalDate().atStartOfDay()))
+                buildChart(reportRepository.countGroupedByDay(LocalDateTime.now().minusDays(6).toLocalDate().atStartOfDay()))
         );
     }
 
-    private List<DashboardStatsResponse.DayStat> buildChart(List<Object[]> rows) {
-        Map<String, Long> countMap = rows.stream().collect(Collectors.toMap(
-                r -> r[0].toString(),
-                r -> ((Number) r[1]).longValue()));
-
+    private List<DashboardStatsResponse.DayStat> buildChart(List<DayStatProjection> rows) {
         DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        Map<String, Long> countMap = rows.stream().collect(Collectors.toMap(
+                r -> r.getDay().format(fmt),
+                DayStatProjection::getCount));
+
         List<DashboardStatsResponse.DayStat> result = new ArrayList<>();
         for (int i = 6; i >= 0; i--) {
             String day = LocalDate.now().minusDays(i).format(fmt);
