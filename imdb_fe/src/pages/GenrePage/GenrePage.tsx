@@ -113,7 +113,7 @@ const GenrePage: React.FC = () => {
                 <div className="mb-8">
                     <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
                         <span className="mr-3">{genre.emoji}</span>
-                        {t(`genres.${genre.name}`)} {t('movies.moviesLabel')}
+                        {t(`genres.${genre.name}`)}
                     </h1>
                     <p className="text-gray-400 text-lg max-w-3xl">
                         {t(genre.descriptionKey)}

@@ -144,7 +144,7 @@ const SignUp: React.FC = () => {
                 <h1 className="text-2xl font-bold text-gray-800 mb-6">{t('auth.signup')}</h1>
 
                 {/* Social Sign Up Buttons */}
-                <div className="space-y-3 mb-6">
+                {/* <div className="space-y-3 mb-6">
                     <button
                         onClick={() => handleSocialSignUp('facebook')}
                         className="w-full flex items-center justify-center gap-2 border-2 border-gray-300 rounded-full py-3 hover:bg-gray-50 transition font-semibold text-gray-700"
@@ -182,7 +182,7 @@ const SignUp: React.FC = () => {
                         </svg>
                         {t('auth.signupWithGoogle')}
                     </button>
-                </div>
+                </div> */}
 
                 {/* Divider */}
                 <div className="flex items-center gap-4 mb-6">

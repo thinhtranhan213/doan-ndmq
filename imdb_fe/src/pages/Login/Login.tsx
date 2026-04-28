@@ -143,7 +143,7 @@ const Login: React.FC = () => {
 
                 {/* Social Login Buttons */}
                 <div className="space-y-3 mb-6">
-                    <button
+                    {/* <button
                         onClick={() => handleSocialLogin('facebook')}
                         className="w-full flex items-center justify-center gap-2 border-2 border-gray-300 rounded-full py-3 hover:bg-gray-50 transition font-semibold text-gray-700"
                     >
@@ -154,7 +154,7 @@ const Login: React.FC = () => {
                             />
                         </svg>
                         {t('auth.login')} with Facebook
-                    </button>
+                    </button> */}
 
                     <button
                         onClick={() => handleSocialLogin('google')}
@@ -183,11 +183,11 @@ const Login: React.FC = () => {
                 </div>
 
                 {/* Divider */}
-                <div className="flex items-center gap-4 mb-6">
+                {/* <div className="flex items-center gap-4 mb-6">
                     <div className="flex-1 h-px bg-gray-300"></div>
                     <span className="text-gray-500 text-sm font-semibold">OR</span>
                     <div className="flex-1 h-px bg-gray-300"></div>
-                </div>
+                </div> */}
 
                 {/* Form */}
                 <form onSubmit={handleLogin} className="space-y-4">
