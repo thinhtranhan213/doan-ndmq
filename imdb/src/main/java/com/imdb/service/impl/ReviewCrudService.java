@@ -123,6 +123,14 @@ public class ReviewCrudService implements IReviewCrudService {
     }
 
     @Override
+    public Page<ReviewDto> getMyReviews(int page, int size) {
+        User user = currentUser();
+        return reviewRepo.findByUserIdOrderByCreatedAtDesc(
+                user.getId(), PageRequest.of(page, size)
+        ).map(r -> toDto(r, user));
+    }
+
+    @Override
     public ReviewDto getById(Long reviewId) {
         Review r = reviewRepo.findById(reviewId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));

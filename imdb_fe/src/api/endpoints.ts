@@ -235,8 +235,8 @@ export const createReview = async (
     return response.data;
 };
 
-export const getMyReviews = async () => {
-    const res = await backendApi.get('/reviews/me');
+export const getMyReviews = async (page = 0, size = 10) => {
+    const res = await backendApi.get('/reviews/me', { params: { page, size } });
     return res.data;
 };
 
@@ -265,3 +265,9 @@ export const getPlaylists = (movieId: number) =>
 
 export const getPlaylistMovies = (playlistId: number) =>
     backendApi.get(`/playlists/${playlistId}/movies`).then(res => res.data);
+
+export const deletePlaylist = (playlistId: number) =>
+    backendApi.delete(`/playlists/${playlistId}`).then(res => res.data);
+
+export const renamePlaylist = (playlistId: number, name: string) =>
+    backendApi.put(`/playlists/${playlistId}`, { name }).then(res => res.data);

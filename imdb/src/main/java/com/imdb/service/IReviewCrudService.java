@@ -12,6 +12,7 @@ public interface IReviewCrudService {
     ReviewDto create(ReviewRequest req);
     Page<ReviewDto> getByFilm(Long filmId, int page, int size, String sort);
     ReviewDto getMyReview(Long filmId);
+    Page<ReviewDto> getMyReviews(int page, int size);
     ReviewDto getById(Long reviewId);
     ReviewDto update(Long reviewId, UpdateReviewRequest req);
     void delete(Long reviewId);

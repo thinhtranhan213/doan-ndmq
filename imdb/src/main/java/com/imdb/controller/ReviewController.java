@@ -45,6 +45,13 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.getScoreDistribution(filmId));
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<Page<ReviewDto>> getMyReviews(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(reviewService.getMyReviews(page, size));
+    }
+
     @GetMapping("/{reviewId}")
     public ResponseEntity<ReviewDto> getById(@PathVariable Long reviewId) {
         return ResponseEntity.ok(reviewService.getById(reviewId));

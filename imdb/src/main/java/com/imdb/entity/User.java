@@ -34,6 +34,7 @@ public class User extends AuditableEntity {
     @Enumerated(EnumType.STRING)
     private UserStatus status = UserStatus.ACTIVE;
 
+    @Enumerated(EnumType.STRING)
     private Provider provider = Provider.LOCAL; // LOCAL / GOOGLE
 
     private String otp; // One-Time Password for forgot password

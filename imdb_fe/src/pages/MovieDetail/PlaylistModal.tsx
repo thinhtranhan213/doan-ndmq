@@ -40,10 +40,11 @@ const PlaylistModal: React.FC<Props> = ({ movieId, onClose }) => {
         const fetch = async () => {
             setLoading(true);
             const res = await getPlaylists(movieId);
+            const list = Array.isArray(res) ? res : res.data ?? [];
 
-            setPlaylists(res.data);
+            setPlaylists(list);
 
-            const selectedIds = res.data
+            const selectedIds = list
                 .filter((p: Playlist) => p.contains)
                 .map((p: Playlist) => p.id);
 
@@ -86,9 +87,10 @@ const PlaylistModal: React.FC<Props> = ({ movieId, onClose }) => {
         if (!newName) return;
 
         const res = await createPlaylist(newName);
+        const created = res.data ?? res;
 
-        setPlaylists(prev => [...prev, { ...res.data, contains: true }]);
-        setSelected(prev => [...prev, res.data.id]);
+        setPlaylists(prev => [...prev, { ...created, contains: true }]);
+        setSelected(prev => [...prev, created.id]);
         setNewName("");
     };
 

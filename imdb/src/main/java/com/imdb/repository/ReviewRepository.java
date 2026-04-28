@@ -46,6 +46,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     boolean existsByMovieIdAndUserId(Long movieId, Long userId);
 
+    Page<Review> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
+
     Page<Review> findByMovieIdAndHiddenFalse(Long movieId, Pageable pageable);
 
     @Query("SELECT new com.imdb.dto.response.RatingCount(r.rating, COUNT(r)) FROM Review r WHERE r.movieId = :filmId AND r.hidden = false GROUP BY r.rating")

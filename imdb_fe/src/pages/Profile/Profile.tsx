@@ -4,10 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/authStore';
 import { usePlaylistStore } from '../../store/playlistStore';
 import { getCurrentUserProfile, ProfileResponse } from '../../api/auth';
-import { useMovies } from '../../hooks/useMovies';
 import { getPlaylists, getPlaylistMovies, getMovieDetails } from '../../api/endpoints';
 import { Movie } from '../../types/movie.types';
 import Footer from '../../components/Footer/Footer';
+import ProfilePlaylists from './ProfilePlaylists';
+import ProfileReviews from './ProfileReviews';
 
 const Profile: React.FC = () => {
     const { t } = useTranslation();
@@ -17,7 +18,6 @@ const Profile: React.FC = () => {
     const [stats, setStats] = useState<ProfileResponse['stats'] | null>(null);
 
     const [loading, setLoading] = useState(true);
-    const { movies } = useMovies();
 
     // Playlist movies states
     const [favoriteMovies, setFavoriteMovies] = useState<Movie[]>([]);
@@ -164,7 +164,7 @@ const Profile: React.FC = () => {
             {/* Main Content */}
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Badges Section */}
-                <section className="mb-12">
+                {/* <section className="mb-12">
                     <div className="flex items-center gap-2 mb-6">
                         <h2 className="text-xl font-bold text-white">{t('profile.badges')}</h2>
                         <span className="text-slate-400">&gt;</span>
@@ -181,47 +181,15 @@ const Profile: React.FC = () => {
                             {t('profile.exploreBadges')}
                         </button>
                     </div>
-                </section>
+                </section> */}
 
-                {/* Ratings Section */}
+                {/* Reviews Section */}
                 <section className="mb-12">
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-2">
-                            <h2 className="text-xl font-bold text-white">{t('profile.ratings')}</h2>
-                            <span className="text-slate-400">&gt;</span>
-                        </div>
-                        <p className="text-slate-400 text-sm cursor-pointer hover:text-white">{t('profile.edit')}</p>
+                    <div className="flex items-center gap-2 mb-6">
+                        <h2 className="text-xl font-bold text-white">Đánh giá của tôi</h2>
+                        <span className="text-slate-400 text-sm">({stats?.totalReviews ?? 0})</span>
                     </div>
-
-                    <div className="bg-slate-900 rounded-lg p-8 text-center mb-4">
-                        <p className="text-slate-400 mb-4">{t('profile.noRatingsYet')}</p>
-                        <p className="text-slate-500 text-sm mb-6">{t('profile.shareOpinion')}</p>
-                        <button className="px-6 py-2 border border-imdb-yellow text-imdb-yellow rounded hover:bg-imdb-yellow hover:text-slate-900 transition-colors">
-                            {t('profile.browsePopularMovies')}
-                        </button>
-                    </div>
-
-                    {/* Movie Grid */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
-                        {movies.slice(0, 8).map((movie: Movie) => (
-                            <div key={movie.id} className="cursor-pointer group">
-                                <div className="relative overflow-hidden rounded bg-slate-800 aspect-[2/3] mb-2">
-                                    {movie.poster_path ? (
-                                        <img
-                                            src={`https://image.tmdb.org/t/p/w200${movie.poster_path}`}
-                                            alt={movie.title}
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center">
-                                            <span className="text-slate-500">{t('profile.noImage')}</span>
-                                        </div>
-                                    )}
-                                </div>
-                                <p className="text-white text-xs text-center truncate">{movie.title}</p>
-                            </div>
-                        ))}
-                    </div>
+                    <ProfileReviews />
                 </section>
 
                 {/* Watchlist Section */}
@@ -394,21 +362,13 @@ const Profile: React.FC = () => {
                     )}
                 </section>
 
-                {/* Lists Section */}
+                {/* Custom Playlists Section */}
                 <section className="mb-12">
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-2">
-                            <h2 className="text-xl font-bold text-white">Lists</h2>
-                            <span className="text-slate-400">&gt;</span>
-                        </div>
+                    <div className="flex items-center gap-2 mb-6">
+                        <h2 className="text-xl font-bold text-white">Playlist của tôi</h2>
+                        <span className="text-slate-400">&gt;</span>
                     </div>
-
-                    <div className="bg-slate-900 rounded-lg p-12 text-center">
-                        <p className="text-slate-400 mb-6 text-lg">{t('profile.noListsYet')}</p>
-                        <button className="px-6 py-2 border border-imdb-yellow text-imdb-yellow rounded hover:bg-imdb-yellow hover:text-slate-900 transition-colors">
-                            {t('profile.createList')}
-                        </button>
-                    </div>
+                    <ProfilePlaylists />
                 </section>
 
                 {/* Favorite People Section */}
