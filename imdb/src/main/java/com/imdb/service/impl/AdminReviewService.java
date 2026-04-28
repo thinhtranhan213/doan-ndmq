@@ -3,6 +3,8 @@ package com.imdb.service.impl;
 import com.imdb.dto.response.AdminReviewDTO;
 import com.imdb.dto.response.PagedResponse;
 import com.imdb.entity.Review;
+import com.imdb.repository.CommentRepository;
+import com.imdb.repository.ReviewLikeRepository;
 import com.imdb.repository.ReviewRepository;
 import com.imdb.service.IAdminReviewService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,8 @@ import java.util.List;
 public class AdminReviewService implements IAdminReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final ReviewLikeRepository reviewLikeRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     public PagedResponse<AdminReviewDTO> getReviews(int page, int size) {
@@ -42,6 +46,8 @@ public class AdminReviewService implements IAdminReviewService {
         Review review = findOrThrow(id);
         log.info("[ADMIN ACTION] admin={} | action=DELETE_REVIEW | reviewId={} | time={}",
                 adminEmail(), id, LocalDateTime.now());
+        reviewLikeRepository.deleteByReviewId(id);
+        commentRepository.deleteByReviewId(id);
         reviewRepository.delete(review);
     }
 

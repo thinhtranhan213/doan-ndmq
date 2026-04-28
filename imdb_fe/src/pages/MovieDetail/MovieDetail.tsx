@@ -18,18 +18,30 @@ const MovieDetail: React.FC = () => {
     const isBlacklisted = useBlacklistStore((s) => s.isBlacklisted);
     const { movie, credits, similarMovies, recommendations, loading, error } = useMovieDetail(Number(id));
     const { isAuthenticated } = useAuthStore();
-    const { toggleMovieInPlaylist } = usePlaylistStore();
+    const { toggleMovieInPlaylist, loading: playlistLoading, favorites, watchLater } = usePlaylistStore();
     const [showAllCast, setShowAllCast] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [showTrailer, setShowTrailer] = useState(false);
+    const [isInFavorites, setIsInFavorites] = useState(false);
+    const [isInWatchLater, setIsInWatchLater] = useState(false);
+
+    useEffect(() => { setIsInFavorites(favorites.movieIds.has(Number(id))); }, [id, favorites.movieIds]);
+    useEffect(() => { setIsInWatchLater(watchLater.movieIds.has(Number(id))); }, [id, watchLater.movieIds]);
+
+    const handleFavoriteClick = async () => {
+        if (!isAuthenticated) return;
+        await toggleMovieInPlaylist('favorites', Number(id));
+    };
+
+    const handleWatchLaterClick = async () => {
+        if (!isAuthenticated) return;
+        await toggleMovieInPlaylist('watchLater', Number(id));
+    };
 
     // Add movie to Recently Viewed when component loads and movie is available
     useEffect(() => {
         if (movie && isAuthenticated) {
-            console.log(`Adding movie ${movie.id} to Recently Viewed`);
-            toggleMovieInPlaylist('recentlyViewed', movie.id).catch(err => {
-                console.error('Failed to add to Recently Viewed:', err);
-            });
+            toggleMovieInPlaylist('recentlyViewed', movie.id).catch(() => {});
         }
     }, [movie?.id, isAuthenticated, toggleMovieInPlaylist]);
 
@@ -90,8 +102,14 @@ const MovieDetail: React.FC = () => {
 
                             {/* Rating */}
                             <div className="flex items-center gap-4 mb-4 flex-wrap">
-                                <div className="flex items-center bg-imdb-yellow text-white px-3 py-1 rounded font-bold">
-                                    ⭐ {movie.vote_average.toFixed(1)}/10
+                                <div className="flex flex-col items-center bg-imdb-yellow text-white px-3 py-1 rounded font-bold leading-tight">
+                                    <span className="text-[10px] font-semibold tracking-widest opacity-90">TMDB</span>
+                                    <span className="flex items-center gap-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                        </svg>
+                                        {movie.vote_average.toFixed(1)}<span className="text-xs font-normal">/10</span>
+                                    </span>
                                 </div>
                                 <span className="text-gray-400">{formatDate(movie.release_date)}</span>
                                 <span className="text-gray-400">{formatRuntime(movie.runtime)}</span>
@@ -120,11 +138,29 @@ const MovieDetail: React.FC = () => {
                                 </button>
 
                                 {/* Favorite */}
-                                {/* Sau này sẽ  thêm danh sách muốn xem Table Watched -> Thêm api moviedetail và xử lý  */}
                                 <button
-                                    className="bg-gray-700 cursor-pointer px-4 py-2 rounded text-white hover:bg-gray-600"
+                                    onClick={handleFavoriteClick}
+                                    disabled={playlistLoading}
+                                    className={`cursor-pointer px-4 py-2 rounded font-semibold transition-colors disabled:opacity-50 ${
+                                        isInFavorites
+                                            ? 'bg-red-500 text-white hover:bg-red-600'
+                                            : 'bg-gray-700 text-white hover:bg-gray-600'
+                                    }`}
                                 >
-                                    ❤️ Yêu thích
+                                    {isInFavorites ? '❤️ Đã yêu thích' : '🤍 Yêu thích'}
+                                </button>
+
+                                {/* Watch Later */}
+                                <button
+                                    onClick={handleWatchLaterClick}
+                                    disabled={playlistLoading}
+                                    className={`cursor-pointer px-4 py-2 rounded font-semibold transition-colors disabled:opacity-50 ${
+                                        isInWatchLater
+                                            ? 'bg-blue-500 text-white hover:bg-blue-600'
+                                            : 'bg-gray-700 text-white hover:bg-gray-600'
+                                    }`}
+                                >
+                                    📅 {isInWatchLater ? 'Đã thêm xem sau' : 'Xem sau'}
                                 </button>
 
                                 {/* Trailer */}

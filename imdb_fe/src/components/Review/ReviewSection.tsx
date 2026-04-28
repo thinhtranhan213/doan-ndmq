@@ -99,9 +99,10 @@ const ReviewSection: React.FC<Props> = ({ filmId }) => {
             {/* Score Distribution */}
             {totalReviews > 0 && (
                 <div className="bg-slate-800 rounded-lg p-5 mb-6 flex gap-8 items-center">
-                    <div className="text-center">
+                    <div className="text-center min-w-[80px]">
+                        <p className="text-[11px] text-gray-400 font-semibold tracking-widest uppercase mb-1">Cộng đồng</p>
                         <p className="text-5xl font-bold text-yellow-400">{avgScore.toFixed(1)}</p>
-                        <p className="text-gray-400 text-sm mt-1">{totalReviews} đánh giá</p>
+                        <p className="text-gray-500 text-xs mt-1">{totalReviews} đánh giá</p>
                     </div>
                     <div className="flex-1 space-y-1">
                         {Array.from({ length: 10 }, (_, i) => 10 - i).map(score => {

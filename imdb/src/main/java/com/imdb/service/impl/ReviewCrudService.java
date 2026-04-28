@@ -163,6 +163,8 @@ public class ReviewCrudService implements IReviewCrudService {
         if (!r.getUser().getId().equals(user.getId()) && !isAdmin) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
+        likeRepo.deleteByReviewId(reviewId);
+        commentRepo.deleteByReviewId(reviewId);
         reviewRepo.delete(r);
     }
 

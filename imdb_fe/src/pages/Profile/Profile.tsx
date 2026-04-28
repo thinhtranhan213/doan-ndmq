@@ -263,11 +263,11 @@ const Profile: React.FC = () => {
                                 ))}
                             </div>
 
-                            <div className="text-center">
+                            {/* <div className="text-center">
                                 <button onClick={() => navigate('/search')} className="px-6 py-2 border border-imdb-yellow text-imdb-yellow rounded hover:bg-imdb-yellow hover:text-slate-900 transition-colors">
                                     {t('profile.browseAllUpcomingReleases')}
                                 </button>
-                            </div>
+                            </div> */}
                         </>
                     )}
                 </section>
@@ -372,7 +372,7 @@ const Profile: React.FC = () => {
                 </section>
 
                 {/* Favorite People Section */}
-                <section className="mb-12">
+                {/* <section className="mb-12">
                     <div className="flex items-center gap-2 mb-6">
                         <h2 className="text-xl font-bold text-white">{t('profile.favoritePeople')}</h2>
                         <span className="text-slate-400">&gt;</span>
@@ -385,7 +385,7 @@ const Profile: React.FC = () => {
                             {t('profile.browseMostPopularCelebs')}
                         </button>
                     </div>
-                </section>
+                </section> */}
             </div>
 
             {/* Footer */}
