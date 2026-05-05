@@ -112,7 +112,7 @@ const PasswordChangeModal: React.FC<PasswordChangeModalProps> = ({
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-slate-900 border border-slate-700 rounded-lg p-8 w-full max-w-md">
                 <h2 className="text-2xl font-bold text-white mb-6">
-                    {hasPassword ? t('auth.changePassword') : t('auth.setPassword')}
+                    {hasPassword ? t('Đổi Mật Khẩu') : t('Tạo Mật Khẩu')}
                 </h2>
 
                 {error && (

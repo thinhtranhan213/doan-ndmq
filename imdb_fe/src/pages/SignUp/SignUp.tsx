@@ -136,7 +136,7 @@ const SignUp: React.FC = () => {
             {/* Sign Up Modal */}
             <div className="relative w-full max-w-md mx-4 bg-white rounded-lg shadow-2xl p-8">
                 {/* Close button */}
-                <button className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition">
+                <button onClick={() => navigate('/')} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition">
                     ✕
                 </button>
 
@@ -185,11 +185,11 @@ const SignUp: React.FC = () => {
                 </div> */}
 
                 {/* Divider */}
-                <div className="flex items-center gap-4 mb-6">
+                {/* <div className="flex items-center gap-4 mb-6">
                     <div className="flex-1 h-px bg-gray-300"></div>
                     <span className="text-gray-500 text-sm font-semibold">OR</span>
                     <div className="flex-1 h-px bg-gray-300"></div>
-                </div>
+                </div> */}
 
                 {/* Form */}
                 <form onSubmit={handleSignUp} className="space-y-4">

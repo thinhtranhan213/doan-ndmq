@@ -110,7 +110,7 @@ const Login: React.FC = () => {
             {/* Login Modal */}
             <div className="relative w-full max-w-md mx-4 bg-white rounded-lg shadow-2xl p-8">
                 {/* Close button */}
-                <button className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition">
+                <button onClick={() => navigate('/')} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition">
                     ✕
                 </button>
 
