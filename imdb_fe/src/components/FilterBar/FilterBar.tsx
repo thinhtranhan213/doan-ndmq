@@ -181,7 +181,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilter, loading = false }) => {
                     {selectedGenres.map(genreId => {
                         const genre = COMMON_GENRES.find(g => g.id === genreId);
                         return genre ? (
-                            <span key={genreId} className="inline-flex items-center gap-2 px-3 py-1 bg-imdb-yellow text-slate-900 rounded text-sm font-medium">
+                            <span key={genreId} className="inline-flex items-center gap-2 px-3 py-1 bg-yellow-500 text-black font-semibold rounded font-medium">
                                 {genre.name}
                                 <button
                                     onClick={() => handleGenreToggle(genreId)}
@@ -193,7 +193,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilter, loading = false }) => {
                         ) : null;
                     })}
                     {selectedYear && (
-                        <span className="inline-flex items-center gap-2 px-3 py-1 bg-imdb-yellow text-slate-900 rounded text-sm font-medium">
+                        <span className="inline-flex items-center gap-2 px-3 py-1 bg-yellow-500 text-black font-semibold rounded font-medium">
                             {selectedYear}
                             <button
                                 onClick={() => setSelectedYear(undefined)}
@@ -204,7 +204,7 @@ const FilterBar: React.FC<FilterBarProps> = ({ onFilter, loading = false }) => {
                         </span>
                     )}
                     {selectedCountry && (
-                        <span className="inline-flex items-center gap-2 px-3 py-1 bg-imdb-yellow text-slate-900 rounded text-sm font-medium">
+                        <span className="inline-flex items-center gap-2 px-3 py-1 bg-yellow-500 text-black font-semibold rounded font-medium">
                             {countries.find(c => c.code === selectedCountry)?.name || selectedCountry}
                             <button
                                 onClick={() => setSelectedCountry('')}
