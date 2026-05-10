@@ -90,6 +90,9 @@ export interface ViolationDTO {
     targetType: 'REVIEW' | 'COMMENT';
     reporterEmail: string;
     targetUserEmail: string;
+    targetUserName: string | null;
+    targetContent: string | null;
+    targetMovieId: number | null;
     reason: string;
     status: ViolationStatus;
     resolution: string | null;

@@ -70,7 +70,8 @@ public class ReviewCrudService implements IReviewCrudService {
         UserSummary userSummary = new UserSummary(
                 r.getUser().getId(),
                 r.getUser().getFullName(),
-                null
+                null,
+                r.getUser().getStatus() != null ? r.getUser().getStatus().name() : "ACTIVE"
         );
         return new ReviewDto(
                 r.getId(), r.getMovieId(), userSummary,

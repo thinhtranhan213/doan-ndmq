@@ -129,13 +129,27 @@ public class AdminViolationService implements IAdminViolationService {
         if (r.getDescription() != null && !r.getDescription().isBlank()) {
             reason += ": " + r.getDescription();
         }
-        String targetUserEmail = resolveTargetUserEmail(r);
+
+        // Prefer snapshot fields; fall back to dynamic lookup for legacy records
+        String targetUserEmail;
+        String targetUserName;
+        if (r.getTargetUser() != null) {
+            targetUserEmail = r.getTargetUser().getEmail();
+            targetUserName  = r.getTargetUser().getFullName();
+        } else {
+            targetUserEmail = resolveLegacyTargetUserEmail(r);
+            targetUserName  = null;
+        }
+
         return new ViolationDTO(
                 r.getId(),
                 r.getTargetId(),
                 r.getTargetType().name(),
                 r.getReporter() != null ? r.getReporter().getEmail() : "—",
                 targetUserEmail,
+                targetUserName,
+                r.getTargetContent(),
+                r.getTargetMovieId(),
                 reason,
                 r.getStatus().name(),
                 r.getResolution(),
@@ -143,7 +157,7 @@ public class AdminViolationService implements IAdminViolationService {
         );
     }
 
-    private String resolveTargetUserEmail(Report r) {
+    private String resolveLegacyTargetUserEmail(Report r) {
         try {
             if (r.getTargetType() == TargetType.REVIEW) {
                 return reviewRepo.findById(r.getTargetId())

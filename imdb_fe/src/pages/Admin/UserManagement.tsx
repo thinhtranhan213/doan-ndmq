@@ -80,8 +80,9 @@ const UserManagement: React.FC = () => {
             await adminService.updateUserRole(user.id, { userId: user.id, role });
             showToast('success', `Đã đổi vai trò của ${user.email}`);
             fetchUsers(currentPage, filters);
-        } catch {
-            showToast('error', 'Đổi vai trò thất bại');
+        } catch (err: any) {
+            const msg = err?.response?.data?.message ?? 'Đổi vai trò thất bại';
+            showToast('error', msg);
             throw new Error('failed');
         }
     };

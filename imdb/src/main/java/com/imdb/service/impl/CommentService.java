@@ -59,7 +59,7 @@ public class CommentService implements ICommentService {
         return new CommentDto(
                 c.getId(),
                 c.getReview().getId(),
-                new UserSummary(c.getUser().getId(), c.getUser().getFullName(), null),
+                new UserSummary(c.getUser().getId(), c.getUser().getFullName(), null, c.getUser().getStatus() != null ? c.getUser().getStatus().name() : "ACTIVE"),
                 content,
                 c.getCreatedAt(),
                 Boolean.TRUE.equals(c.getIsEdited()),

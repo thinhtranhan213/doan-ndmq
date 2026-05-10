@@ -61,8 +61,16 @@ const ReviewCard: React.FC<Props> = ({ review, isAuthenticated, onDeleted, onUpd
             {/* Header */}
             <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-slate-600 flex items-center justify-center text-white font-bold text-sm">
-                        {data.user.username.charAt(0).toUpperCase()}
+                    <div className="relative flex-shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-slate-600 flex items-center justify-center text-white font-bold text-sm">
+                            {data.user.username.charAt(0).toUpperCase()}
+                        </div>
+                        {data.user.userStatus === 'WARNING' && (
+                            <span
+                                className="absolute -bottom-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center text-black text-xs font-bold leading-none"
+                                title="Tài khoản đang bị cảnh báo"
+                            >!</span>
+                        )}
                     </div>
                     <div>
                         <p className="text-white font-semibold text-sm">{data.user.username}</p>

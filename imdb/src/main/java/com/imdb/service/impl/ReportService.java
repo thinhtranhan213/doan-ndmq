@@ -3,7 +3,9 @@ package com.imdb.service.impl;
 import com.imdb.config.user.CustomUserDetails;
 import com.imdb.dto.request.CreateReportRequest;
 import com.imdb.entity.*;
+import com.imdb.repository.CommentRepository;
 import com.imdb.repository.ReportRepository;
+import com.imdb.repository.ReviewRepository;
 import com.imdb.service.IReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,8 @@ import org.springframework.web.server.ResponseStatusException;
 public class ReportService implements IReportService {
 
     private final ReportRepository reportRepo;
+    private final ReviewRepository reviewRepo;
+    private final CommentRepository commentRepo;
 
     private User currentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -44,12 +48,35 @@ public class ReportService implements IReportService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Bạn đã báo cáo nội dung này rồi");
         }
 
+        User targetUser = null;
+        String targetContent = null;
+        Long targetMovieId = null;
+
+        if (targetType == TargetType.REVIEW) {
+            Review review = reviewRepo.findById(req.targetId()).orElse(null);
+            if (review != null) {
+                targetUser = review.getUser();
+                targetContent = review.getContent();
+                targetMovieId = review.getMovieId();
+            }
+        } else if (targetType == TargetType.COMMENT) {
+            Comment comment = commentRepo.findById(req.targetId()).orElse(null);
+            if (comment != null) {
+                targetUser = comment.getUser();
+                targetContent = comment.getContent();
+                targetMovieId = comment.getReview().getMovieId();
+            }
+        }
+
         reportRepo.save(Report.builder()
                 .reporter(user)
                 .targetId(req.targetId())
                 .targetType(targetType)
                 .type(reportType)
                 .description(req.description())
+                .targetUser(targetUser)
+                .targetContent(targetContent)
+                .targetMovieId(targetMovieId)
                 .build());
     }
 }

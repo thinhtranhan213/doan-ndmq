@@ -8,6 +8,9 @@ public record ViolationDTO(
         String targetType,       // "REVIEW" | "COMMENT"
         String reporterEmail,
         String targetUserEmail,
+        String targetUserName,
+        String targetContent,
+        Long targetMovieId,
         String reason,           // ReportType + optional description
         String status,
         String resolution,

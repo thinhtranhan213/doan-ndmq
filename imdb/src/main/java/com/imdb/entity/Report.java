@@ -42,4 +42,15 @@ public class Report extends AuditableEntity {
 
     @Column(columnDefinition = "TEXT")
     private String resolution;
+
+    // Snapshot fields – stored at creation so data persists even if content is deleted
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "target_user_id")
+    private User targetUser;
+
+    @Column(name = "target_content", columnDefinition = "TEXT")
+    private String targetContent;
+
+    @Column(name = "target_movie_id")
+    private Long targetMovieId;
 }

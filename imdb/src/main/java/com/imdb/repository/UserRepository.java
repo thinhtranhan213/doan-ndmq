@@ -37,6 +37,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     long countByStatus(UserStatus status);
 
+    @Query("SELECT COUNT(u) FROM User u JOIN u.roles r WHERE r.name = 'ROLE_ADMIN'")
+    long countAdmins();
+
     @Query("SELECT COUNT(u) FROM User u WHERE u.createdAt >= :since")
     long countCreatedSince(@Param("since") LocalDateTime since);
 

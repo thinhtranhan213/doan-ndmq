@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import type { AdminReviewDTO, PagedResponse, DashboardStats } from '../../types/admin.types';
 import * as reviewService from '../../api/adminReviewService';
 import { getDashboardStats } from '../../api/adminStatsService';
+import { getMovieDetails } from '../../api/endpoints';
 import ConfirmDialog from '../../components/Admin/ConfirmDialog';
 import Pagination from '../../components/Pagination/Pagination';
 
@@ -24,6 +25,7 @@ const ReviewManagement: React.FC = () => {
     const [deleteTarget, setDeleteTarget] = useState<AdminReviewDTO | null>(null);
     const [actionLoading, setActionLoading] = useState(false);
     const [toasts, setToasts]       = useState<Toast[]>([]);
+    const [movieTitles, setMovieTitles] = useState<Map<number, string>>(new Map());
 
     const showToast = (type: 'success' | 'error', msg: string) => {
         const id = ++toastId;
@@ -31,11 +33,25 @@ const ReviewManagement: React.FC = () => {
         setTimeout(() => setToasts((p) => p.filter((t) => t.id !== id)), 3500);
     };
 
+    const fetchMovieTitles = async (ids: number[]) => {
+        const unique = [...new Set(ids)];
+        const results = await Promise.allSettled(unique.map(id => getMovieDetails(id)));
+        setMovieTitles(prev => {
+            const next = new Map(prev);
+            results.forEach((r, i) => {
+                if (r.status === 'fulfilled') next.set(unique[i], r.value.title);
+            });
+            return next;
+        });
+    };
+
     const fetchData = async (page: number) => {
         setLoading(true);
         try {
             const res = await reviewService.getReviews(page - 1, 20);
             setPagedData(res);
+            const ids = res.data.map(r => r.movieId).filter((id): id is number => id != null);
+            if (ids.length) fetchMovieTitles(ids);
         } catch { showToast('error', 'Không thể tải đánh giá'); }
         finally   { setLoading(false); }
     };
@@ -90,6 +106,7 @@ const ReviewManagement: React.FC = () => {
                                 <tr>
                                     <th className="px-4 py-3 text-left">ID</th>
                                     <th className="px-4 py-3 text-left">Tác giả</th>
+                                    <th className="px-4 py-3 text-left">Phim</th>
                                     <th className="px-4 py-3 text-left">Nội dung</th>
                                     <th className="px-4 py-3 text-center">Rating</th>
                                     <th className="px-4 py-3 text-left">Trạng thái</th>
@@ -104,6 +121,14 @@ const ReviewManagement: React.FC = () => {
                                         <td className="px-4 py-3">
                                             <p className="text-white text-xs font-medium">{r.authorName}</p>
                                             <p className="text-gray-500 text-xs">{r.authorEmail}</p>
+                                        </td>
+                                        <td className="px-4 py-3 max-w-[160px]">
+                                            {r.movieId
+                                                ? <p className="text-yellow-400 text-xs font-medium line-clamp-2" title={movieTitles.get(r.movieId)}>
+                                                    {movieTitles.get(r.movieId) ?? `#${r.movieId}`}
+                                                  </p>
+                                                : <span className="text-gray-600 text-xs">—</span>
+                                            }
                                         </td>
                                         <td className="px-4 py-3 text-gray-300 max-w-[260px]">
                                             <p className="line-clamp-2">{r.content}</p>
@@ -138,7 +163,7 @@ const ReviewManagement: React.FC = () => {
                                     </tr>
                                 ))}
                                 {(pagedData?.data ?? []).length === 0 && (
-                                    <tr><td colSpan={7} className="text-center py-12 text-gray-500">Không có đánh giá nào.</td></tr>
+                                    <tr><td colSpan={8} className="text-center py-12 text-gray-500">Không có đánh giá nào.</td></tr>
                                 )}
                             </tbody>
                         </table>

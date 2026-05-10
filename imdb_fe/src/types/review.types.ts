@@ -2,6 +2,7 @@ export interface UserSummary {
     id: number;
     username: string;
     avatar: string | null;
+    userStatus: string | null;
 }
 
 export interface ReviewDto {

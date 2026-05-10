@@ -30,4 +30,18 @@ public class EmailService implements IEmailService {
 
         mailSender.send(message);
     }
+
+    public void sendWarningNotification(String toEmail, String username, String reason) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject("[IMDB] Tài khoản của bạn đã bị cảnh báo");
+        message.setText(
+                "Xin chào " + username + ",\n\n" +
+                "Tài khoản của bạn đã bị gắn cảnh báo (WARNING) bởi quản trị viên.\n" +
+                "Lý do: " + (reason != null && !reason.isBlank() ? reason : "Không có lý do cụ thể") + "\n\n" +
+                "Nếu bạn tiếp tục vi phạm quy định, tài khoản của bạn có thể bị khóa vĩnh viễn.\n\n" +
+                "Trân trọng,\nĐội ngũ IMDB"
+        );
+        mailSender.send(message);
+    }
 }

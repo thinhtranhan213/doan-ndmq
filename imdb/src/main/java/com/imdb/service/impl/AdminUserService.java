@@ -11,14 +11,17 @@ import com.imdb.repository.ReviewRepository;
 import com.imdb.repository.RoleRepository;
 import com.imdb.repository.UserRepository;
 import com.imdb.service.IAdminUserService;
+import com.imdb.service.IEmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,6 +36,7 @@ public class AdminUserService implements IAdminUserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final ReviewRepository reviewRepository;
+    private final IEmailService emailService;
 
     @Override
     public PagedResponse<UserAdminDTO> getUsers(int page, int size, String status, String role, String search) {
@@ -72,6 +76,10 @@ public class AdminUserService implements IAdminUserService {
         user.setStatus(newStatus);
         user.setEnabled(newStatus != UserStatus.BANNED);
         userRepository.save(user);
+
+        if (newStatus == UserStatus.WARNING) {
+            emailService.sendWarningNotification(user.getEmail(), user.getFullName(), request.reason());
+        }
     }
 
     @Override
@@ -83,6 +91,17 @@ public class AdminUserService implements IAdminUserService {
                 .orElseThrow(() -> new RuntimeException("Role not found: " + roleName));
 
         String admin = currentAdminEmail();
+
+        if (user.getEmail().equals(admin)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Không thể thay đổi quyền của chính mình");
+        }
+
+        boolean isDemotingAdmin = user.getRoles().stream().anyMatch(r -> r.getName().equals("ROLE_ADMIN"))
+                && !roleName.equals("ROLE_ADMIN");
+        if (isDemotingAdmin && userRepository.countAdmins() <= 1) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hệ thống phải có ít nhất một quản trị viên");
+        }
+
         String oldRoles = user.getRoles().stream().map(Role::getName).collect(Collectors.joining(","));
 
         log.info("[ADMIN ACTION] admin={} | action=CHANGE_ROLE | userId={} | email={} | {} -> {} | time={}",

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import type { ViolationDTO, PagedResponse, DashboardStats } from '../../types/admin.types';
 import * as violationService from '../../api/adminViolationService';
 import { getDashboardStats } from '../../api/adminStatsService';
+import { getMovieDetails } from '../../api/endpoints';
 import StatusBadge from '../../components/Admin/StatusBadge';
 import ConfirmDialog from '../../components/Admin/ConfirmDialog';
 import Pagination from '../../components/Pagination/Pagination';
@@ -37,6 +38,7 @@ const ViolationManagement: React.FC = () => {
     const [confirm, setConfirm]     = useState<Confirm | null>(null);
     const [actionLoading, setActionLoading] = useState(false);
     const [toasts, setToasts]       = useState<Toast[]>([]);
+    const [movieTitles, setMovieTitles] = useState<Map<number, string>>(new Map());
 
     const showToast = (type: 'success' | 'error', message: string) => {
         const id = ++toastId;
@@ -44,11 +46,25 @@ const ViolationManagement: React.FC = () => {
         setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 3500);
     };
 
+    const fetchMovieTitles = async (ids: number[]) => {
+        const unique = [...new Set(ids)];
+        const results = await Promise.allSettled(unique.map(id => getMovieDetails(id)));
+        setMovieTitles(prev => {
+            const next = new Map(prev);
+            results.forEach((r, i) => {
+                if (r.status === 'fulfilled') next.set(unique[i], r.value.title);
+            });
+            return next;
+        });
+    };
+
     const fetchData = async (page: number, status: string) => {
         setLoading(true);
         try {
             const res = await violationService.getViolations(page - 1, 20, status || undefined);
             setPagedData(res);
+            const ids = res.data.map(v => v.targetMovieId).filter((id): id is number => id != null);
+            if (ids.length) fetchMovieTitles(ids);
         } catch { showToast('error', 'Không thể tải danh sách vi phạm'); }
         finally   { setLoading(false); }
     };
@@ -115,6 +131,7 @@ const ViolationManagement: React.FC = () => {
                                     <th className="px-4 py-3 text-left">Loại</th>
                                     <th className="px-4 py-3 text-left">Người báo cáo</th>
                                     <th className="px-4 py-3 text-left">Người bị báo cáo</th>
+                                    <th className="px-4 py-3 text-left">Nội dung vi phạm</th>
                                     <th className="px-4 py-3 text-left">Lý do</th>
                                     <th className="px-4 py-3 text-left">Trạng thái</th>
                                     <th className="px-4 py-3 text-left">Ngày</th>
@@ -130,11 +147,25 @@ const ViolationManagement: React.FC = () => {
                                                 {v.targetType === 'REVIEW' ? 'Đánh giá' : 'Bình luận'}
                                             </span>
                                         </td>
-                                        <td className="px-4 py-3 text-gray-300">{v.reporterEmail}</td>
-                                        <td className="px-4 py-3 text-gray-300">{v.targetUserEmail}</td>
-                                        <td className="px-4 py-3 text-gray-300 max-w-[200px] truncate">{v.reason}</td>
+                                        <td className="px-4 py-3 text-gray-300 text-xs">{v.reporterEmail}</td>
+                                        <td className="px-4 py-3">
+                                            <p className="text-gray-300 text-sm font-medium">{v.targetUserName ?? '—'}</p>
+                                            <p className="text-gray-500 text-xs">{v.targetUserEmail}</p>
+                                        </td>
+                                        <td className="px-4 py-3 max-w-[220px]">
+                                            {v.targetMovieId && (
+                                                <p className="text-yellow-400 text-xs font-medium mb-1">
+                                                    {movieTitles.get(v.targetMovieId) ?? `#${v.targetMovieId}`}
+                                                </p>
+                                            )}
+                                            {v.targetContent
+                                                ? <p className="text-gray-300 text-xs line-clamp-2" title={v.targetContent}>{v.targetContent}</p>
+                                                : <span className="text-gray-600 text-xs italic">Nội dung đã bị xóa</span>
+                                            }
+                                        </td>
+                                        <td className="px-4 py-3 text-gray-300 max-w-[160px] truncate text-xs">{v.reason}</td>
                                         <td className="px-4 py-3"><StatusBadge value={v.status} /></td>
-                                        <td className="px-4 py-3 text-gray-400">{fmtDate(v.createdAt)}</td>
+                                        <td className="px-4 py-3 text-gray-400 text-xs">{fmtDate(v.createdAt)}</td>
                                         <td className="px-4 py-3">
                                             {v.status === 'PENDING' && (
                                                 <div className="flex gap-1.5 justify-center flex-wrap">
@@ -175,7 +206,7 @@ const ViolationManagement: React.FC = () => {
             <ConfirmDialog
                 isOpen={!!confirm}
                 title={confirm ? ACTION_META[confirm.action].title : ''}
-                message={confirm ? `Người bị báo cáo: ${confirm.violation.targetUserEmail}` : ''}
+                message={confirm ? `Người bị báo cáo: ${confirm.violation.targetUserName ?? confirm.violation.targetUserEmail}` : ''}
                 danger={confirm ? ACTION_META[confirm.action].danger : false}
                 withReason
                 loading={actionLoading}
