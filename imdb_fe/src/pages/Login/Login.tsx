@@ -13,6 +13,7 @@ const Login: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+    const [isBanned, setIsBanned] = useState(false);
 
     const oauthError = searchParams.get('error');
 
@@ -80,8 +81,12 @@ const Login: React.FC = () => {
             navigate('/');
         } catch (err: any) {
             const errorMessage = err.response?.data?.message || t('auth.loginFailed');
-            setError(errorMessage);
-            setErrors({ email: errorMessage });
+            if (errorMessage === 'User is disabled') {
+                setIsBanned(true);
+            } else {
+                setError(errorMessage);
+                setErrors({ email: errorMessage });
+            }
         } finally {
             setIsLoading(false);
             setLoading(false);
@@ -134,8 +139,8 @@ const Login: React.FC = () => {
                     </p>
                 </div>
 
-                {/* OAuth error banner */}
-                {oauthError === 'account_banned' && (
+                {/* Banned account banner */}
+                {(oauthError === 'account_banned' || isBanned) && (
                     <div className="mb-4 px-4 py-3 bg-red-50 border border-red-300 rounded-lg text-red-700 text-sm text-center">
                         Tài khoản của bạn đã bị khóa và không thể đăng nhập.
                     </div>

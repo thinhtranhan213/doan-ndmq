@@ -106,7 +106,7 @@ const SignUp: React.FC = () => {
             });
 
             login(response);
-            navigate('/');
+            navigate('/', { state: { signedUp: true } });
         } catch (err: any) {
             const errorMessage = err.response?.data?.message || t('auth.signupFailed');
             setError(errorMessage);
