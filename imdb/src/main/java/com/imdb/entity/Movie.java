@@ -35,19 +35,7 @@ public class Movie extends AuditableEntity {
     private Double averageRating;
     private Long voteCount;
 
-    @ManyToMany
-    @JoinTable(
-            name = "movie_genres",
-            joinColumns = @JoinColumn(name = "movie_id"),
-            inverseJoinColumns = @JoinColumn(name = "genre_id")
-    )
-    private Set<Genre> genres = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "movie_keywords",
-            joinColumns = @JoinColumn(name = "movie_id"),
-            inverseJoinColumns = @JoinColumn(name = "keyword_id")
-    )
-    private Set<Keyword> keywords = new HashSet<>();
+
+
 }
