@@ -9,6 +9,7 @@ import com.imdb.repository.ReportRepository;
 import com.imdb.repository.ReviewRepository;
 import com.imdb.repository.UserRepository;
 import com.imdb.service.IAdminViolationService;
+import com.imdb.service.IEmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -32,6 +33,7 @@ public class AdminViolationService implements IAdminViolationService {
     private final ReviewRepository reviewRepo;
     private final CommentRepository commentRepo;
     private final UserRepository userRepo;
+    private final IEmailService emailService;
 
     @Override
     public PagedResponse<ViolationDTO> getViolations(int page, int size, String status) {
@@ -90,6 +92,7 @@ public class AdminViolationService implements IAdminViolationService {
             target.setStatus(UserStatus.BANNED);
             target.setEnabled(false);
             userRepo.save(target);
+            emailService.sendBannedNotification(target.getEmail(), target.getFullName(), request.resolution());
         }
     }
 

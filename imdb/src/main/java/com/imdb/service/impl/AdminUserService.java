@@ -68,10 +68,11 @@ public class AdminUserService implements IAdminUserService {
     public void updateUserStatus(Long id, UserStatusRequest request) {
         User user = findUserOrThrow(id);
         UserStatus newStatus = UserStatus.valueOf(request.status().toUpperCase());
+        UserStatus previousStatus = user.getStatus();
         String admin = currentAdminEmail();
 
         log.info("[ADMIN ACTION] admin={} | action=CHANGE_STATUS | userId={} | email={} | {} -> {} | reason={} | time={}",
-                admin, id, user.getEmail(), user.getStatus(), newStatus, request.reason(), LocalDateTime.now());
+                admin, id, user.getEmail(), previousStatus, newStatus, request.reason(), LocalDateTime.now());
 
         user.setStatus(newStatus);
         user.setEnabled(newStatus != UserStatus.BANNED);
@@ -79,6 +80,10 @@ public class AdminUserService implements IAdminUserService {
 
         if (newStatus == UserStatus.WARNING) {
             emailService.sendWarningNotification(user.getEmail(), user.getFullName(), request.reason());
+        } else if (newStatus == UserStatus.BANNED) {
+            emailService.sendBannedNotification(user.getEmail(), user.getFullName(), request.reason());
+        } else if (newStatus == UserStatus.ACTIVE && previousStatus == UserStatus.BANNED) {
+            emailService.sendUnbannedNotification(user.getEmail(), user.getFullName());
         }
     }
 

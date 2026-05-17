@@ -6,4 +6,8 @@ public interface IEmailService {
     void sendOtp(String toEmail, String otp);
 
     void sendWarningNotification(String toEmail, String username, String reason);
+
+    void sendBannedNotification(String toEmail, String username, String reason);
+
+    void sendUnbannedNotification(String toEmail, String username);
 }

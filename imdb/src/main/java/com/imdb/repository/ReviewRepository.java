@@ -21,7 +21,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     List<Review> findByMovieIdOrderByCreatedAtDesc(Long movieId);
 
-    @Query("SELECT AVG(r.rating) FROM Review r WHERE r.movieId = :movieId")
+    @Query("SELECT AVG(r.rating) FROM Review r WHERE r.movieId = :movieId AND r.hidden = false AND (r.user IS NULL OR r.user.status <> com.imdb.entity.UserStatus.BANNED)")
     Double getAverageRating(Long movieId);
 
     @Query("SELECT COUNT(r) FROM Review r WHERE r.user.id = :userId")
@@ -48,8 +48,9 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     Page<Review> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 
-    Page<Review> findByMovieIdAndHiddenFalse(Long movieId, Pageable pageable);
+    @Query("SELECT r FROM Review r WHERE r.movieId = :movieId AND r.hidden = false AND (r.user IS NULL OR r.user.status <> com.imdb.entity.UserStatus.BANNED)")
+    Page<Review> findByMovieIdAndHiddenFalse(@Param("movieId") Long movieId, Pageable pageable);
 
-    @Query("SELECT new com.imdb.dto.response.RatingCount(r.rating, COUNT(r)) FROM Review r WHERE r.movieId = :filmId AND r.hidden = false GROUP BY r.rating")
+    @Query("SELECT new com.imdb.dto.response.RatingCount(r.rating, COUNT(r)) FROM Review r WHERE r.movieId = :filmId AND r.hidden = false AND (r.user IS NULL OR r.user.status <> com.imdb.entity.UserStatus.BANNED) GROUP BY r.rating")
     List<RatingCount> countByRatingForFilm(@Param("filmId") Long filmId);
 }
